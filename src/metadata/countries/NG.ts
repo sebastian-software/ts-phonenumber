@@ -14,18 +14,18 @@ const metadata: RegionMetadata = {
   internationalPrefix: "009",
   nationalPrefix: "0",
   generalDesc: {
-    pattern: "(?:20|9\\d)\\d{8}|[78]\\d{9,13}",
+    pattern: /^(?:20|9\d)\d{8}|[78]\d{9,13}$/,
     possibleLengths: [10]
   },
   fixedLine: {
-    pattern: "20(?:[1259]\\d|3[013-9]|4[1-8]|6[024-689]|7[1-79]|8[2-9])\\d{6}",
+    pattern: /^20(?:[1259]\d|3[013-9]|4[1-8]|6[024-689]|7[1-79]|8[2-9])\d{6}$/,
     example: "2033123456",
     possibleLengths: [10],
     possibleLengthsLocalOnly: [6, 7]
   },
   mobile: {
     pattern:
-      "(?:702[0-24-9]|819[01])\\d{6}|(?:7(?:0[13-9]|[12]\\d)|8(?:0[1-9]|1[0-8])|9(?:0[1-9]|1[1-6]))\\d{7}",
+      /^(?:702[0-24-9]|819[01])\d{6}|(?:7(?:0[13-9]|[12]\d)|8(?:0[1-9]|1[0-8])|9(?:0[1-9]|1[1-6]))\d{7}$/,
     example: "8021234567",
     possibleLengths: [10]
   },

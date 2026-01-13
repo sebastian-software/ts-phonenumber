@@ -160,6 +160,7 @@ export async function getRegionsForCode(countryCode: number): Promise<string[] |
 
 /**
  * Checks if a national number matches the patterns for a region.
+ * Patterns are pre-compiled RegExp objects for maximum performance.
  */
 /* v8 ignore start - internal function for multi-region matching, tested indirectly */
 function matchesRegion(nationalNumber: string, metadata: RegionMetadata): boolean {
@@ -171,26 +172,17 @@ function matchesRegion(nationalNumber: string, metadata: RegionMetadata): boolea
     }
   }
 
-  // Check if matches any pattern
-  if (metadata.mobile?.pattern) {
-    const regex = new RegExp(`^${metadata.mobile.pattern}$`)
-    if (regex.test(nationalNumber)) {
-      return true
-    }
+  // Check if matches any pattern (patterns are pre-compiled RegExp)
+  if (metadata.mobile?.pattern?.test(nationalNumber)) {
+    return true
   }
 
-  if (metadata.fixedLine?.pattern) {
-    const regex = new RegExp(`^${metadata.fixedLine.pattern}$`)
-    if (regex.test(nationalNumber)) {
-      return true
-    }
+  if (metadata.fixedLine?.pattern?.test(nationalNumber)) {
+    return true
   }
 
-  if (metadata.voip?.pattern) {
-    const regex = new RegExp(`^${metadata.voip.pattern}$`)
-    if (regex.test(nationalNumber)) {
-      return true
-    }
+  if (metadata.voip?.pattern?.test(nationalNumber)) {
+    return true
   }
 
   return false

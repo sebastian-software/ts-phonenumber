@@ -14,23 +14,23 @@ const metadata: RegionMetadata = {
   internationalPrefix: "00",
   nationalPrefix: "0",
   generalDesc: {
-    pattern: "(?:1\\d|[2569])\\d{6,8}|4\\d{6,9}|7\\d{8}|8\\d{8,9}",
+    pattern: /^(?:1\d|[2569])\d{6,8}|4\d{6,9}|7\d{8}|8\d{8,9}$/,
     possibleLengths: [7, 8, 9, 10]
   },
   fixedLine: {
     pattern:
-      "(?:1\\d|21)\\d{6,7}|(?:2[24-9]|4(?:0[24]|5\\d|7)|5(?:0[45]|1\\d|8)|6(?:1\\d|[237-9])|9(?:1\\d|[35-9]))\\d{5}|(?:23|4(?:[1-469]|8\\d)|5[23679]|6[4-6]|7[14]|9[04])\\d{7}",
+      /^(?:1\d|21)\d{6,7}|(?:2[24-9]|4(?:0[24]|5\d|7)|5(?:0[45]|1\d|8)|6(?:1\d|[237-9])|9(?:1\d|[35-9]))\d{5}|(?:23|4(?:[1-469]|8\d)|5[23679]|6[4-6]|7[14]|9[04])\d{7}$/,
     example: "2212345",
     possibleLengths: [7, 8, 9, 10],
     possibleLengthsLocalOnly: [5, 6]
   },
   mobile: {
-    pattern: "8(?:22|[35-9]\\d)\\d{6}",
+    pattern: /^8(?:22|[35-9]\d)\d{6}$/,
     example: "850123456",
     possibleLengths: [9]
   },
   voip: {
-    pattern: "76\\d{7}",
+    pattern: /^76\d{7}$/,
     example: "761234567",
     possibleLengths: [9]
   },

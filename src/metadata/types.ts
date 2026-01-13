@@ -8,8 +8,8 @@
  * Maps to PhoneNumberDesc in libphonenumber.
  */
 export interface PhoneNumberDesc {
-  /** Regular expression pattern for matching national numbers */
-  pattern?: string
+  /** Compiled regular expression for matching national numbers (anchored: ^pattern$) */
+  pattern?: RegExp
   /** Example number matching this pattern */
   example?: string
   /** Possible lengths for this number type */

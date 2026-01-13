@@ -14,22 +14,22 @@ const metadata: RegionMetadata = {
   internationalPrefix: "00",
   nationalPrefix: "0",
   generalDesc: {
-    pattern: "800\\d{6}|(?:21|[579]\\d|63)\\d{7}",
+    pattern: /^800\d{6}|(?:21|[579]\d|63)\d{7}$/,
     possibleLengths: [9]
   },
   fixedLine: {
-    pattern: "21[1-8]\\d{6}",
+    pattern: /^21[1-8]\d{6}$/,
     example: "211234567",
     possibleLengths: [9],
     possibleLengthsLocalOnly: [6]
   },
   mobile: {
-    pattern: "(?:[59][5-8]|7[5-9])\\d{7}",
+    pattern: /^(?:[59][5-8]|7[5-9])\d{7}$/,
     example: "955123456",
     possibleLengths: [9]
   },
   voip: {
-    pattern: "63\\d{7}",
+    pattern: /^63\d{7}$/,
     example: "630123456",
     possibleLengths: [9]
   },

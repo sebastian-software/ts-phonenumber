@@ -16,18 +16,17 @@ const metadata: RegionMetadata = {
   nationalPrefixForParsing: "(?:0|90)(?:(1[245]|2[1-35]|31|4[13]|[56]5|99)(\\d{10,11}))?",
   nationalPrefixTransformRule: "$2",
   generalDesc: {
-    pattern:
-      "[1-467]\\d{9,10}|55[0-46-9]\\d{8}|[34]\\d{7}|55\\d{7,8}|(?:5[0-46-9]|[89]\\d)\\d{7,9}",
+    pattern: /^[1-467]\d{9,10}|55[0-46-9]\d{8}|[34]\d{7}|55\d{7,8}|(?:5[0-46-9]|[89]\d)\d{7,9}$/,
     possibleLengths: [10, 11]
   },
   fixedLine: {
-    pattern: "(?:[14689][1-9]|2[12478]|3[1-578]|5[13-5]|7[13-579])[2-5]\\d{7}",
+    pattern: /^(?:[14689][1-9]|2[12478]|3[1-578]|5[13-5]|7[13-579])[2-5]\d{7}$/,
     example: "1123456789",
     possibleLengths: [10],
     possibleLengthsLocalOnly: [8]
   },
   mobile: {
-    pattern: "(?:[14689][1-9]|2[12478]|3[1-578]|5[13-5]|7[13-579])(?:7|9\\d)\\d{7}",
+    pattern: /^(?:[14689][1-9]|2[12478]|3[1-578]|5[13-5]|7[13-579])(?:7|9\d)\d{7}$/,
     example: "11961234567",
     possibleLengths: [10, 11],
     possibleLengthsLocalOnly: [8, 9]

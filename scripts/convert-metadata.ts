@@ -16,6 +16,7 @@ const UPSTREAM_XML = join(ROOT_DIR, "upstream/resources/PhoneNumberMetadata.xml"
 const OUTPUT_DIR = join(ROOT_DIR, "src/metadata/countries")
 
 interface PhoneNumberDesc {
+  /** Pattern as string (will be converted to RegExp literal in output) */
   pattern?: string
   example?: string
   possibleLengths?: number[]
@@ -270,10 +271,101 @@ function parseTerritory(territory: XMLTerritory): RegionMetadata {
 }
 
 /**
- * Generate TypeScript module for a region
+ * Escape special characters in a string for use in a RegExp literal.
+ * Converts string escapes (like \\d) to regex escapes (like \d).
+ */
+function stringToRegexLiteral(pattern: string, anchored: boolean): string {
+  // The pattern is stored with double backslashes (for JSON/string),
+  // but RegExp literals use single backslashes
+  // e.g., "\\d" in string becomes "\d" in /\d/
+  const prefix = anchored ? "^" : ""
+  const suffix = anchored ? "$" : ""
+  return `/${prefix}${pattern}${suffix}/`
+}
+
+/**
+ * Serialize a PhoneNumberDesc with RegExp literal for pattern
+ */
+function serializePhoneDesc(desc: PhoneNumberDesc, indent: string): string {
+  const lines: string[] = ["{"]
+  const innerIndent = indent + "  "
+
+  if (desc.pattern) {
+    lines.push(`${innerIndent}pattern: ${stringToRegexLiteral(desc.pattern, true)},`)
+  }
+  if (desc.example) {
+    lines.push(`${innerIndent}example: ${JSON.stringify(desc.example)},`)
+  }
+  if (desc.possibleLengths) {
+    lines.push(`${innerIndent}possibleLengths: ${JSON.stringify(desc.possibleLengths)},`)
+  }
+  if (desc.possibleLengthsLocalOnly) {
+    lines.push(
+      `${innerIndent}possibleLengthsLocalOnly: ${JSON.stringify(desc.possibleLengthsLocalOnly)},`
+    )
+  }
+
+  // Remove trailing comma from last line
+  if (lines.length > 1) {
+    lines[lines.length - 1] = lines[lines.length - 1].replace(/,$/, "")
+  }
+
+  lines.push(`${indent}}`)
+  return lines.join("\n")
+}
+
+/**
+ * Serialize a NumberFormat (patterns stay as strings)
+ */
+function serializeNumberFormat(fmt: NumberFormat, indent: string): string {
+  const lines: string[] = ["{"]
+  const innerIndent = indent + "  "
+
+  lines.push(`${innerIndent}pattern: ${JSON.stringify(fmt.pattern)},`)
+  lines.push(`${innerIndent}format: ${JSON.stringify(fmt.format)},`)
+
+  if (fmt.leadingDigits && fmt.leadingDigits.length > 0) {
+    if (fmt.leadingDigits.length === 1) {
+      lines.push(`${innerIndent}leadingDigits: [${JSON.stringify(fmt.leadingDigits[0])}],`)
+    } else {
+      lines.push(`${innerIndent}leadingDigits: [`)
+      for (const ld of fmt.leadingDigits) {
+        lines.push(`${innerIndent}  ${JSON.stringify(ld)},`)
+      }
+      // Remove trailing comma
+      lines[lines.length - 1] = lines[lines.length - 1].replace(/,$/, "")
+      lines.push(`${innerIndent}],`)
+    }
+  }
+
+  if (fmt.nationalPrefixFormattingRule) {
+    lines.push(
+      `${innerIndent}nationalPrefixFormattingRule: ${JSON.stringify(fmt.nationalPrefixFormattingRule)},`
+    )
+  }
+  if (fmt.domesticCarrierCodeFormattingRule) {
+    lines.push(
+      `${innerIndent}domesticCarrierCodeFormattingRule: ${JSON.stringify(fmt.domesticCarrierCodeFormattingRule)},`
+    )
+  }
+  if (fmt.nationalPrefixOptional) {
+    lines.push(`${innerIndent}nationalPrefixOptional: true,`)
+  }
+
+  // Remove trailing comma from last line
+  if (lines.length > 1) {
+    lines[lines.length - 1] = lines[lines.length - 1].replace(/,$/, "")
+  }
+
+  lines.push(`${indent}}`)
+  return lines.join("\n")
+}
+
+/**
+ * Generate TypeScript module for a region with compiled RegExp patterns
  */
 function generateRegionModule(meta: RegionMetadata): string {
-  return [
+  const lines: string[] = [
     "/**",
     ` * Phone number metadata for ${meta.regionCode}`,
     ` * Country calling code: +${String(meta.countryCode)}`,
@@ -282,15 +374,82 @@ function generateRegionModule(meta: RegionMetadata): string {
     " * Do not edit manually.",
     " */",
     "",
-    'import type { RegionMetadata } from "../types.js";',
+    'import type { RegionMetadata } from "../types.js"',
     "",
-    "const metadata: RegionMetadata = " +
-      JSON.stringify(meta, null, 2).replace(/"([^"]+)":/g, "$1:") +
-      ";",
-    "",
-    "export default metadata;",
-    ""
-  ].join("\n")
+    "const metadata: RegionMetadata = {"
+  ]
+
+  const indent = "  "
+
+  // Simple properties
+  lines.push(`${indent}regionCode: ${JSON.stringify(meta.regionCode)},`)
+  lines.push(`${indent}countryCode: ${String(meta.countryCode)},`)
+
+  if (meta.internationalPrefix) {
+    lines.push(`${indent}internationalPrefix: ${JSON.stringify(meta.internationalPrefix)},`)
+  }
+  if (meta.nationalPrefix) {
+    lines.push(`${indent}nationalPrefix: ${JSON.stringify(meta.nationalPrefix)},`)
+  }
+  if (meta.nationalPrefixForParsing) {
+    lines.push(
+      `${indent}nationalPrefixForParsing: ${JSON.stringify(meta.nationalPrefixForParsing)},`
+    )
+  }
+  if (meta.nationalPrefixTransformRule) {
+    lines.push(
+      `${indent}nationalPrefixTransformRule: ${JSON.stringify(meta.nationalPrefixTransformRule)},`
+    )
+  }
+  if (meta.preferredInternationalPrefix) {
+    lines.push(
+      `${indent}preferredInternationalPrefix: ${JSON.stringify(meta.preferredInternationalPrefix)},`
+    )
+  }
+  if (meta.mainCountryForCode) {
+    lines.push(`${indent}mainCountryForCode: true,`)
+  }
+  if (meta.leadingDigits) {
+    lines.push(`${indent}leadingDigits: ${JSON.stringify(meta.leadingDigits)},`)
+  }
+
+  // Phone number descriptions with RegExp patterns
+  if (meta.generalDesc) {
+    lines.push(`${indent}generalDesc: ${serializePhoneDesc(meta.generalDesc, indent)},`)
+  }
+  if (meta.fixedLine) {
+    lines.push(`${indent}fixedLine: ${serializePhoneDesc(meta.fixedLine, indent)},`)
+  }
+  if (meta.mobile) {
+    lines.push(`${indent}mobile: ${serializePhoneDesc(meta.mobile, indent)},`)
+  }
+  if (meta.voip) {
+    lines.push(`${indent}voip: ${serializePhoneDesc(meta.voip, indent)},`)
+  }
+
+  // Formats (patterns stay as strings)
+  if (meta.formats && meta.formats.length > 0) {
+    lines.push(`${indent}formats: [`)
+    for (const fmt of meta.formats) {
+      lines.push(`${indent}  ${serializeNumberFormat(fmt, indent + "  ")},`)
+    }
+    // Remove trailing comma
+    lines[lines.length - 1] = lines[lines.length - 1].replace(/,$/, "")
+    lines.push(`${indent}]`)
+  }
+
+  // Remove trailing comma from last property line (before formats array or last desc)
+  const lastPropIndex = lines.length - 1
+  if (!lines[lastPropIndex].endsWith("[") && !lines[lastPropIndex].endsWith("]")) {
+    lines[lastPropIndex] = lines[lastPropIndex].replace(/,$/, "")
+  }
+
+  lines.push("}")
+  lines.push("")
+  lines.push("export default metadata")
+  lines.push("")
+
+  return lines.join("\n")
 }
 
 async function main(): Promise<void> {

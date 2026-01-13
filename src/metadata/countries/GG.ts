@@ -16,22 +16,22 @@ const metadata: RegionMetadata = {
   nationalPrefixForParsing: "([25-9]\\d{5})$|0|180020",
   nationalPrefixTransformRule: "1481$1",
   generalDesc: {
-    pattern: "(?:1481|[357-9]\\d{3})\\d{6}|8\\d{6}(?:\\d{2})?",
+    pattern: /^(?:1481|[357-9]\d{3})\d{6}|8\d{6}(?:\d{2})?$/,
     possibleLengths: [10]
   },
   fixedLine: {
-    pattern: "1481[25-9]\\d{5}",
+    pattern: /^1481[25-9]\d{5}$/,
     example: "1481256789",
     possibleLengths: [10],
     possibleLengthsLocalOnly: [6]
   },
   mobile: {
-    pattern: "7(?:(?:781|839)\\d|911[17])\\d{5}",
+    pattern: /^7(?:(?:781|839)\d|911[17])\d{5}$/,
     example: "7781123456",
     possibleLengths: [10]
   },
   voip: {
-    pattern: "56\\d{8}",
+    pattern: /^56\d{8}$/,
     example: "5612345678",
     possibleLengths: [10]
   }

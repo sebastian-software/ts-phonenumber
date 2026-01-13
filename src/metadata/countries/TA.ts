@@ -14,11 +14,11 @@ const metadata: RegionMetadata = {
   internationalPrefix: "00",
   leadingDigits: "8",
   generalDesc: {
-    pattern: "8\\d{3}",
+    pattern: /^8\d{3}$/,
     possibleLengths: [4]
   },
   fixedLine: {
-    pattern: "8\\d{3}",
+    pattern: /^8\d{3}$/,
     example: "8999",
     possibleLengths: [4]
   }

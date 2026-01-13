@@ -14,19 +14,19 @@ const metadata: RegionMetadata = {
   internationalPrefix: "00|99(?:[01469]|5(?:[14]1|3[23]|5[59]|77|88|9[09]))",
   nationalPrefix: "0",
   preferredInternationalPrefix: "00",
-  leadingDigits: "1[03-79]|[2-9]",
   mainCountryForCode: true,
+  leadingDigits: "1[03-79]|[2-9]",
   generalDesc: {
-    pattern: "[1-35689]\\d{4}|7\\d{10,11}|(?:[124-7]\\d|3[0-46-9])\\d{8}|[1-9]\\d{5,8}",
+    pattern: /^[1-35689]\d{4}|7\d{10,11}|(?:[124-7]\d|3[0-46-9])\d{8}|[1-9]\d{5,8}$/,
     possibleLengths: [5, 6, 7, 8, 9, 10]
   },
   fixedLine: {
-    pattern: "1[3-7][1-8]\\d{3,6}|(?:19[1-8]|[23568][1-8]\\d|9(?:00|[1-8]\\d))\\d{2,6}",
+    pattern: /^1[3-7][1-8]\d{3,6}|(?:19[1-8]|[23568][1-8]\d|9(?:00|[1-8]\d))\d{2,6}$/,
     example: "131234567",
     possibleLengths: [5, 6, 7, 8, 9]
   },
   mobile: {
-    pattern: "4946\\d{2,6}|(?:4[0-8]|50)\\d{4,8}",
+    pattern: /^4946\d{2,6}|(?:4[0-8]|50)\d{4,8}$/,
     example: "412345678",
     possibleLengths: [6, 7, 8, 9, 10]
   },

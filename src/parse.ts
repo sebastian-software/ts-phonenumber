@@ -54,9 +54,6 @@ const ALPHA_MAP: Record<string, string> = {
 /** Pattern for E.164 format: starts with + followed by digits */
 const E164_PATTERN = /^\+[1-9]\d{1,14}$/
 
-/** Cache for compiled regex patterns - avoids recompilation on every call */
-const regexCache = new Map<string, RegExp>()
-
 /**
  * Parses a phone number string into a structured ParsedPhoneNumber object.
  * This is an async function as it may need to load region metadata.
@@ -476,41 +473,24 @@ function parseNationalSync(
 }
 
 /**
- * Gets or creates a cached RegExp for a pattern.
- */
-function getCachedRegex(pattern: string): RegExp {
-  let regex = regexCache.get(pattern)
-  if (!regex) {
-    regex = new RegExp(`^${pattern}$`)
-    regexCache.set(pattern, regex)
-  }
-  return regex
-}
-
-/**
  * Determines the phone number type based on metadata patterns.
+ * Patterns are pre-compiled RegExp objects for maximum performance.
  */
 function determineType(nationalNumber: string, metadata: RegionMetadata): PhoneNumberType {
-  // Check mobile pattern
-  if (metadata.mobile?.pattern) {
-    if (getCachedRegex(metadata.mobile.pattern).test(nationalNumber)) {
-      return PhoneNumberType.MOBILE
-    }
+  // Check mobile pattern (RegExp is pre-compiled in metadata)
+  if (metadata.mobile?.pattern?.test(nationalNumber)) {
+    return PhoneNumberType.MOBILE
   }
 
   // Check fixed line pattern
-  if (metadata.fixedLine?.pattern) {
-    if (getCachedRegex(metadata.fixedLine.pattern).test(nationalNumber)) {
-      return PhoneNumberType.LANDLINE
-    }
+  if (metadata.fixedLine?.pattern?.test(nationalNumber)) {
+    return PhoneNumberType.LANDLINE
   }
 
   // Check VoIP pattern
-  /* v8 ignore next 5 - VoIP patterns vary by region, not all have VoIP definitions */
-  if (metadata.voip?.pattern) {
-    if (getCachedRegex(metadata.voip.pattern).test(nationalNumber)) {
-      return PhoneNumberType.VOIP
-    }
+  /* v8 ignore next 3 - VoIP patterns vary by region, not all have VoIP definitions */
+  if (metadata.voip?.pattern?.test(nationalNumber)) {
+    return PhoneNumberType.VOIP
   }
 
   return PhoneNumberType.INVALID

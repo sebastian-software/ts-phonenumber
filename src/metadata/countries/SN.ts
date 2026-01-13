@@ -13,21 +13,21 @@ const metadata: RegionMetadata = {
   countryCode: 221,
   internationalPrefix: "00",
   generalDesc: {
-    pattern: "(?:[378]\\d|93)\\d{7}",
+    pattern: /^(?:[378]\d|93)\d{7}$/,
     possibleLengths: [9]
   },
   fixedLine: {
-    pattern: "3(?:0(?:1[0-2]|80)|282|3(?:8[1-9]|9[3-9])|611)\\d{5}",
+    pattern: /^3(?:0(?:1[0-2]|80)|282|3(?:8[1-9]|9[3-9])|611)\d{5}$/,
     example: "301012345",
     possibleLengths: [9]
   },
   mobile: {
-    pattern: "7(?:[015-8]\\d|21|90)\\d{6}",
+    pattern: /^7(?:[015-8]\d|21|90)\d{6}$/,
     example: "701234567",
     possibleLengths: [9]
   },
   voip: {
-    pattern: "(?:3(?:392|9[01]\\d)\\d|93(?:3[13]0|929))\\d{4}",
+    pattern: /^(?:3(?:392|9[01]\d)\d|93(?:3[13]0|929))\d{4}$/,
     example: "933301234",
     possibleLengths: [9]
   },

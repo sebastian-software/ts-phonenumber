@@ -15,17 +15,17 @@ const metadata: RegionMetadata = {
   nationalPrefix: "0",
   preferredInternationalPrefix: "00",
   generalDesc: {
-    pattern: "0004\\d{2,9}|[1249]\\d{7}|2\\d{3,4}|(?:[49]\\d|80)\\d{5}",
+    pattern: /^0004\d{2,9}|[1249]\d{7}|2\d{3,4}|(?:[49]\d|80)\d{5}$/,
     possibleLengths: [8]
   },
   fixedLine: {
-    pattern: "(?:1(?:770|9(?:20|[89]7))|(?:2\\d|4[2-7])\\d\\d)\\d{4}",
+    pattern: /^(?:1(?:770|9(?:20|[89]7))|(?:2\d|4[2-7])\d\d)\d{4}$/,
     example: "21231234",
     possibleLengths: [8],
     possibleLengthsLocalOnly: [7]
   },
   mobile: {
-    pattern: "9[1-9]\\d{6}",
+    pattern: /^9[1-9]\d{6}$/,
     example: "94231234",
     possibleLengths: [8]
   },

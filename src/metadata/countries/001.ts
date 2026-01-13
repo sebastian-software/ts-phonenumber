@@ -12,7 +12,7 @@ const metadata: RegionMetadata = {
   regionCode: "001",
   countryCode: 979,
   generalDesc: {
-    pattern: "[1359]\\d{8}"
+    pattern: /^[1359]\d{8}$/
   },
   formats: [
     {

@@ -15,17 +15,17 @@ const metadata: RegionMetadata = {
   nationalPrefixForParsing: "([0-258]\\d{4})$",
   nationalPrefixTransformRule: "3$1",
   generalDesc: {
-    pattern: "[13]\\d{5}",
+    pattern: /^[13]\d{5}$/,
     possibleLengths: [6]
   },
   fixedLine: {
-    pattern: "(?:1(?:06|17|28|39)|3[0-2]\\d)\\d{3}",
+    pattern: /^(?:1(?:06|17|28|39)|3[0-2]\d)\d{3}$/,
     example: "106609",
     possibleLengths: [6],
     possibleLengthsLocalOnly: [5]
   },
   mobile: {
-    pattern: "(?:14|3[58])\\d{4}",
+    pattern: /^(?:14|3[58])\d{4}$/,
     example: "381234",
     possibleLengths: [6],
     possibleLengthsLocalOnly: [5]
