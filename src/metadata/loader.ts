@@ -59,14 +59,18 @@ export async function loadRegionMetadata(regionCode: string): Promise<RegionMeta
   }
 }
 
+// Base path for metadata - resolved at runtime relative to dist/
+const METADATA_BASE = "./metadata"
+
 /**
  * Internal function to load region metadata via dynamic import.
  */
 async function loadRegionMetadataInternal(regionCode: string): Promise<RegionMetadata | undefined> {
   try {
     // Dynamic import for code splitting
-    // The path will be resolved by the bundler
-    const module = (await import(`./countries/${regionCode}.js`)) as { default: RegionMetadata }
+    // Path constructed at runtime to prevent bundler static analysis
+    const path = `${METADATA_BASE}/countries/${regionCode}.js`
+    const module = (await import(/* @vite-ignore */ path)) as { default: RegionMetadata }
     /* v8 ignore next - dynamic import success path, tests use registerMetadata */
     return module.default
   } catch {
@@ -93,7 +97,8 @@ async function loadRegionMetadataInternal(regionCode: string): Promise<RegionMet
  */
 export async function loadMetadataBundle(bundleName: string): Promise<MetadataBundle | undefined> {
   try {
-    const module = (await import(`./bundles/${bundleName}.js`)) as { default: MetadataBundle }
+    const path = `${METADATA_BASE}/bundles/${bundleName}.js`
+    const module = (await import(/* @vite-ignore */ path)) as { default: MetadataBundle }
 
     /* v8 ignore start - bundle loading success path, tests use registerMetadata */
     // Populate caches from bundle
