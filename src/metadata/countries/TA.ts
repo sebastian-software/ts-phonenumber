@@ -12,15 +12,15 @@ const metadata: RegionMetadata = {
   regionCode: "TA",
   countryCode: 290,
   internationalPrefix: "00",
-  leadingDigits: "8",
+  leadingDigits: /^8/,
   generalDesc: {
     pattern: /^8\d{3}$/,
-    possibleLengths: [4]
+    possibleLengths: 16 // bits: 4
   },
   fixedLine: {
     pattern: /^8\d{3}$/,
     example: "8999",
-    possibleLengths: [4]
+    possibleLengths: 16 // bits: 4
   }
 }
 

@@ -14,39 +14,39 @@ const metadata: RegionMetadata = {
   internationalPrefix: "00",
   generalDesc: {
     pattern: /^[5-9]\d{8}$/,
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   fixedLine: {
     pattern:
       /^96906(?:0[0-8]|1[1-9]|[2-9]\d)\d\d|9(?:69(?:0[0-57-9]|[1-9]\d)|73(?:[0-8]\d|9[1-9]))\d{4}|(?:8(?:[1356]\d|[28][0-8]|[47][1-9])|9(?:[135]\d|[268][0-8]|4[1-9]|7[124-9]))\d{6}$/,
     example: "810123456",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   mobile: {
     pattern: /^96906(?:09|10)\d\d|(?:590(?:10[0-2]|600)|97390\d)\d{3}|(?:6\d|7[1-48])\d{7}$/,
     example: "612345678",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   formats: [
     {
-      pattern: "(\\d{4})",
+      pattern: /^(\d{4})$/,
       format: "$1",
-      leadingDigits: ["905"]
+      leadingDigits: /^905/
     },
     {
-      pattern: "(\\d{6})",
+      pattern: /^(\d{6})$/,
       format: "$1",
-      leadingDigits: ["[79]9"]
+      leadingDigits: /^[79]9/
     },
     {
-      pattern: "(\\d{3})(\\d{3})(\\d{3})",
+      pattern: /^(\d{3})(\d{3})(\d{3})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["[89]00"]
+      leadingDigits: /^[89]00/
     },
     {
-      pattern: "(\\d{3})(\\d{2})(\\d{2})(\\d{2})",
+      pattern: /^(\d{3})(\d{2})(\d{2})(\d{2})$/,
       format: "$1 $2 $3 $4",
-      leadingDigits: ["[5-9]"]
+      leadingDigits: /^[5-9]/
     }
   ]
 }

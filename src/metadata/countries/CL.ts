@@ -14,78 +14,78 @@ const metadata: RegionMetadata = {
   internationalPrefix: "(?:0|1(?:1[0-69]|2[02-5]|5[13-58]|69|7[0167]|8[018]))0",
   generalDesc: {
     pattern: /^12300\d{6}|6\d{9,10}|[2-9]\d{8}$/,
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   fixedLine: {
     pattern:
       /^2(?:1982[0-6]|3314[05-9])\d{3}|(?:2(?:1(?:160|962)|3(?:(?:2\d|50)\d|3(?:[034679]\d|1[0-35-9]|2[1-9]|5[0-24-9]|8[0-389])|600)|646[59])|(?:600|80[1-9])\d\d|9(?:(?:10[0-2]|7[1-9]\d)\d|3(?:[0-57-9]\d\d|6(?:0[02-9]|[1-9]\d))|6(?:[0-8]\d\d|9(?:[02-79]\d|1[05-9]))|9(?:[03-9]\d\d|1(?:[0235-9]\d|4[0-24-9])|2(?:[0-79]\d|8[0-46-9]))))\d{4}|(?:22|3[2-5]|[47][1-35]|5[1-3578]|6[13-57]|8[1-9]|9[2458])\d{7}$/,
     example: "600123456",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   mobile: {
     pattern:
       /^2(?:1982[0-6]|3314[05-9])\d{3}|(?:2(?:1(?:160|962)|3(?:(?:2\d|50)\d|3(?:[034679]\d|1[0-35-9]|2[1-9]|5[0-24-9]|8[0-389])|600)|646[59])|80[1-8]\d\d|9(?:(?:10[0-2]|7[1-9]\d)\d|3(?:[0-57-9]\d\d|6(?:0[02-9]|[1-9]\d))|6(?:[0-8]\d\d|9(?:[02-79]\d|1[05-9]))|9(?:[03-9]\d\d|1(?:[0235-9]\d|4[0-24-9])|2(?:[0-79]\d|8[0-46-9]))))\d{4}|(?:22|3[2-5]|[47][1-35]|5[1-3578]|6[13-57]|8[1-9]|9[2458])\d{7}$/,
     example: "221234567",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   voip: {
     pattern: /^44\d{7}$/,
     example: "441234567",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   formats: [
     {
-      pattern: "(\\d{4})",
+      pattern: /^(\d{4})$/,
       format: "$1",
-      leadingDigits: ["1(?:[03-589]|21)|[29]0|78"]
+      leadingDigits: /^1(?:[03-589]|21)|[29]0|78/
     },
     {
-      pattern: "(\\d{5})(\\d{4})",
+      pattern: /^(\d{5})(\d{4})$/,
       format: "$1 $2",
-      leadingDigits: ["219", "2196"],
+      leadingDigits: /^(?:219|2196)/,
       nationalPrefixFormattingRule: "($FG)"
     },
     {
-      pattern: "(\\d{3})(\\d{3})(\\d{3})",
+      pattern: /^(\d{3})(\d{3})(\d{3})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["60|809"]
+      leadingDigits: /^60|809/
     },
     {
-      pattern: "(\\d{2})(\\d{3})(\\d{4})",
+      pattern: /^(\d{2})(\d{3})(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["44"]
+      leadingDigits: /^44/
     },
     {
-      pattern: "(\\d)(\\d{4})(\\d{4})",
+      pattern: /^(\d)(\d{4})(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["2[1-36]"],
+      leadingDigits: /^2[1-36]/,
       nationalPrefixFormattingRule: "($FG)"
     },
     {
-      pattern: "(\\d)(\\d{4})(\\d{4})",
+      pattern: /^(\d)(\d{4})(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["9(?:10|[2-9])"]
+      leadingDigits: /^9(?:10|[2-9])/
     },
     {
-      pattern: "(\\d{2})(\\d{3})(\\d{4})",
+      pattern: /^(\d{2})(\d{3})(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["3[2-5]|[47]|5[1-3578]|6[13-57]|8(?:0[1-8]|[1-9])"],
+      leadingDigits: /^3[2-5]|[47]|5[1-3578]|6[13-57]|8(?:0[1-8]|[1-9])/,
       nationalPrefixFormattingRule: "($FG)"
     },
     {
-      pattern: "(\\d{3})(\\d{3})(\\d{3,4})",
+      pattern: /^(\d{3})(\d{3})(\d{3,4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["60|8"]
+      leadingDigits: /^60|8/
     },
     {
-      pattern: "(\\d{4})(\\d{3})(\\d{4})",
+      pattern: /^(\d{4})(\d{3})(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["1"]
+      leadingDigits: /^1/
     },
     {
-      pattern: "(\\d{3})(\\d{3})(\\d{2})(\\d{3})",
+      pattern: /^(\d{3})(\d{3})(\d{2})(\d{3})$/,
       format: "$1 $2 $3 $4",
-      leadingDigits: ["60"]
+      leadingDigits: /^60/
     }
   ]
 }

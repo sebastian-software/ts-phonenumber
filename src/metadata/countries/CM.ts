@@ -14,28 +14,28 @@ const metadata: RegionMetadata = {
   internationalPrefix: "00",
   generalDesc: {
     pattern: /^[26]\d{8}|88\d{6,7}$/,
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   fixedLine: {
     pattern: /^2(?:22|33)\d{6}$/,
     example: "222123456",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   mobile: {
     pattern: /^(?:24[23]|6(?:[25-9]\d|40))\d{6}$/,
     example: "671234567",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   formats: [
     {
-      pattern: "(\\d{2})(\\d{2})(\\d{2})(\\d{2})",
+      pattern: /^(\d{2})(\d{2})(\d{2})(\d{2})$/,
       format: "$1 $2 $3 $4",
-      leadingDigits: ["88"]
+      leadingDigits: /^88/
     },
     {
-      pattern: "(\\d)(\\d{2})(\\d{2})(\\d{2})(\\d{2})",
+      pattern: /^(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/,
       format: "$1 $2 $3 $4 $5",
-      leadingDigits: ["[26]|88"]
+      leadingDigits: /^[26]|88/
     }
   ]
 }

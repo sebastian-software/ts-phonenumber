@@ -4,6 +4,23 @@
  */
 
 /**
+ * Bitmap representing valid phone number lengths.
+ *
+ * Each bit position represents whether that length is valid.
+ * For example, if lengths 7, 8, 9 are valid:
+ *   - Bit 7 = 1, Bit 8 = 1, Bit 9 = 1
+ *   - Binary: 0b1110000000 = 896
+ *
+ * To check if a length is valid: `(bitmap & (1 << length)) !== 0`
+ * To get min length: `Math.clz32(bitmap)` related calculation
+ * To get max length: `31 - Math.clz32(bitmap)`
+ *
+ * This is more efficient than arrays for membership checks (O(1) vs O(n))
+ * and more compact in memory.
+ */
+export type LengthBitmap = number
+
+/**
  * Phone number description - pattern and validation info for a number type.
  * Maps to PhoneNumberDesc in libphonenumber.
  */
@@ -12,10 +29,17 @@ export interface PhoneNumberDesc {
   pattern?: RegExp
   /** Example number matching this pattern */
   example?: string
-  /** Possible lengths for this number type */
-  possibleLengths?: number[]
-  /** Possible lengths when dialing locally (without area code) */
-  possibleLengthsLocalOnly?: number[]
+  /**
+   * Bitmap of possible lengths for this number type.
+   * Bit N is set if length N is valid. Check with: (bitmap & (1 << length)) !== 0
+   * @see LengthBitmap
+   */
+  possibleLengths?: LengthBitmap
+  /**
+   * Bitmap of possible lengths when dialing locally (without area code).
+   * @see LengthBitmap
+   */
+  possibleLengthsLocalOnly?: LengthBitmap
 }
 
 /**
@@ -23,12 +47,12 @@ export interface PhoneNumberDesc {
  * Maps to NumberFormat in libphonenumber.
  */
 export interface NumberFormat {
-  /** Pattern to match the national number (capturing groups) */
-  pattern: string
+  /** Compiled pattern to match the national number (anchored: ^pattern$, with capturing groups) */
+  pattern: RegExp
   /** Replacement format string using $1, $2, etc. */
   format: string
-  /** Leading digits patterns to determine when to use this format */
-  leadingDigits?: string[]
+  /** Compiled leading digits pattern to determine when to use this format (prefix match: ^pattern, patterns combined with |) */
+  leadingDigits?: RegExp
   /** Rule for formatting with national prefix (e.g., "0$1") */
   nationalPrefixFormattingRule?: string
   /** Rule for carrier code formatting */
@@ -60,8 +84,8 @@ export interface RegionMetadata {
   sameMobileAndFixedLinePattern?: boolean
   /** Whether this is the main country for the calling code */
   mainCountryForCode?: boolean
-  /** Leading digits to identify this region (for shared codes) */
-  leadingDigits?: string
+  /** Compiled leading digits pattern to identify this region for shared country codes (prefix match: ^pattern) */
+  leadingDigits?: RegExp
 
   /** General description matching any valid number */
   generalDesc?: PhoneNumberDesc

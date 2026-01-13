@@ -13,22 +13,22 @@ const metadata: RegionMetadata = {
   countryCode: 1,
   internationalPrefix: "011",
   nationalPrefix: "1",
-  leadingDigits: "787|939",
+  leadingDigits: /^787|939/,
   generalDesc: {
     pattern: /^(?:[589]\d\d|787)\d{7}$/,
-    possibleLengths: [10]
+    possibleLengths: 1024 // bits: 10
   },
   fixedLine: {
     pattern: /^(?:787|939)[2-9]\d{6}$/,
     example: "7872345678",
-    possibleLengths: [10],
-    possibleLengthsLocalOnly: [7]
+    possibleLengths: 1024, // bits: 10
+    possibleLengthsLocalOnly: 128 // bits: 7
   },
   mobile: {
     pattern: /^(?:787|939)[2-9]\d{6}$/,
     example: "7872345678",
-    possibleLengths: [10],
-    possibleLengthsLocalOnly: [7]
+    possibleLengths: 1024, // bits: 10
+    possibleLengthsLocalOnly: 128 // bits: 7
   }
 }
 

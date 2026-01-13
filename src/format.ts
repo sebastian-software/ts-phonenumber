@@ -8,19 +8,6 @@ import { parse, parseSync } from "./parse.js"
 import { loadRegionMetadata, getCachedRegionMetadata } from "./metadata/index.js"
 import type { RegionMetadata, NumberFormat } from "./metadata/index.js"
 
-/** Cache for compiled regex patterns */
-const regexCache = new Map<string, RegExp>()
-
-function getCachedRegex(pattern: string, anchored = false): RegExp {
-  const key = anchored ? `^${pattern}$` : pattern
-  let regex = regexCache.get(key)
-  if (!regex) {
-    regex = anchored ? new RegExp(`^${pattern}$`) : new RegExp(pattern)
-    regexCache.set(key, regex)
-  }
-  return regex
-}
-
 /**
  * Formats a phone number according to the specified format.
  *
@@ -182,9 +169,8 @@ function applyFormat(
     return defaultFormat(nationalNumber)
   }
 
-  // Apply the format (use cached regex)
-  const pattern = getCachedRegex(matchingFormat.pattern)
-  const formatted = nationalNumber.replace(pattern, matchingFormat.format)
+  // Apply the format (pattern is pre-compiled RegExp with capture groups)
+  const formatted = nationalNumber.replace(matchingFormat.pattern, matchingFormat.format)
   return formatted
 }
 
@@ -196,18 +182,13 @@ function findMatchingFormat(
   formats: NumberFormat[]
 ): NumberFormat | undefined {
   for (const format of formats) {
-    // Check leading digits if specified
-    if (format.leadingDigits && format.leadingDigits.length > 0) {
-      const matches = format.leadingDigits.some((leadingPattern) => {
-        return getCachedRegex(`^${leadingPattern}`).test(nationalNumber)
-      })
-      if (!matches) {
-        continue
-      }
+    // Check leading digits if specified (pre-compiled RegExp with ^ anchor)
+    if (format.leadingDigits && !format.leadingDigits.test(nationalNumber)) {
+      continue
     }
 
-    // Check if the pattern matches (use cached anchored regex)
-    if (getCachedRegex(format.pattern, true).test(nationalNumber)) {
+    // Check if the pattern matches (pre-compiled anchored RegExp)
+    if (format.pattern.test(nationalNumber)) {
       return format
     }
   }

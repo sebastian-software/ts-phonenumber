@@ -14,23 +14,23 @@ const metadata: RegionMetadata = {
   internationalPrefix: "00",
   generalDesc: {
     pattern: /^(?:[268]\d|78|90)\d{6}$/,
-    possibleLengths: [8]
+    possibleLengths: 256 // bits: 8
   },
   fixedLine: {
     pattern: /^6\d{7}$/,
     example: "63123456",
-    possibleLengths: [8]
+    possibleLengths: 256 // bits: 8
   },
   mobile: {
     pattern: /^2333[0-8]\d{3}|2(?:[0-24-9]\d\d|3(?:0[07]|[14-9]\d|2[02-9]|3[0-24-9]))\d{4}$/,
     example: "21234567",
-    possibleLengths: [8]
+    possibleLengths: 256 // bits: 8
   },
   formats: [
     {
-      pattern: "(\\d{2})(\\d{3})(\\d{3})",
+      pattern: /^(\d{2})(\d{3})(\d{3})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["[2679]|8[01]"]
+      leadingDigits: /^[2679]|8[01]/
     }
   ]
 }

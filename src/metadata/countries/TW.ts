@@ -15,56 +15,54 @@ const metadata: RegionMetadata = {
   nationalPrefix: "0",
   generalDesc: {
     pattern: /^[2-689]\d{8}|7\d{9,10}|[2-8]\d{7}|2\d{6}$/,
-    possibleLengths: [8, 9, 10, 11]
+    possibleLengths: 3840 // bits: 8,9,10,11
   },
   fixedLine: {
     pattern:
       /^(?:2[2-8]\d|370|55[01]|7[1-9])\d{6}|4(?:(?:0(?:0[1-9]|[2-48]\d)|1[023]\d)\d{4,5}|(?:[239]\d\d|4(?:0[56]|12|49))\d{5})|6(?:[01]\d{7}|4(?:0[56]|12|24|4[09])\d{4,5})|8(?:(?:2(?:3\d|4[0-269]|[578]0|66)|36[24-9]|90\d\d)\d{4}|4(?:0[56]|12|24|4[09])\d{4,5})|(?:2(?:2(?:0\d\d|4(?:0[68]|[249]0|3[0-467]|5[0-25-9]|6[0235689]))|(?:3(?:[09]\d|1[0-4])|(?:4\d|5[0-49]|6[0-29]|7[0-5])\d)\d)|(?:(?:3[2-9]|5[2-8]|6[0-35-79]|8[7-9])\d\d|4(?:2(?:[089]\d|7[1-9])|(?:3[0-4]|[78]\d|9[01])\d))\d)\d{3}$/,
     example: "221234567",
-    possibleLengths: [8, 9]
+    possibleLengths: 768 // bits: 8,9
   },
   mobile: {
     pattern: /^(?:40001[0-2]|9[0-8]\d{4})\d{3}$/,
     example: "912345678",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   voip: {
     pattern: /^7010(?:[0-2679]\d|3[0-7]|8[0-5])\d{5}|70\d{8}$/,
     example: "7012345678",
-    possibleLengths: [10, 11]
+    possibleLengths: 3072 // bits: 10,11
   },
   formats: [
     {
-      pattern: "(\\d{2})(\\d)(\\d{4})",
+      pattern: /^(\d{2})(\d)(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["202"],
+      leadingDigits: /^202/,
       nationalPrefixFormattingRule: "$NP$FG"
     },
     {
-      pattern: "(\\d{2})(\\d{3})(\\d{3,4})",
+      pattern: /^(\d{2})(\d{3})(\d{3,4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["[258]0"],
+      leadingDigits: /^[258]0/,
       nationalPrefixFormattingRule: "$NP$FG"
     },
     {
-      pattern: "(\\d)(\\d{3,4})(\\d{4})",
+      pattern: /^(\d)(\d{3,4})(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: [
-        "[23568]|4(?:0[02-48]|[1-47-9])|7[1-9]",
-        "[23568]|4(?:0[2-48]|[1-47-9])|(?:400|7)[1-9]"
-      ],
+      leadingDigits:
+        /^(?:[23568]|4(?:0[02-48]|[1-47-9])|7[1-9]|[23568]|4(?:0[2-48]|[1-47-9])|(?:400|7)[1-9])/,
       nationalPrefixFormattingRule: "$NP$FG"
     },
     {
-      pattern: "(\\d{3})(\\d{3})(\\d{3})",
+      pattern: /^(\d{3})(\d{3})(\d{3})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["[49]"],
+      leadingDigits: /^[49]/,
       nationalPrefixFormattingRule: "$NP$FG"
     },
     {
-      pattern: "(\\d{2})(\\d{4})(\\d{4,5})",
+      pattern: /^(\d{2})(\d{4})(\d{4,5})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["7"],
+      leadingDigits: /^7/,
       nationalPrefixFormattingRule: "$NP$FG"
     }
   ]

@@ -587,18 +587,37 @@ function parseTerritory(territory: XMLTerritory): RegionMetadata {
 /**
  * Escape special characters in a string for use in a RegExp literal.
  * Converts string escapes (like \\d) to regex escapes (like \d).
+ *
+ * @param pattern - The regex pattern string
+ * @param anchored - If true, anchors pattern with ^ and $ (full match)
+ * @param prefixOnly - If true, only adds ^ anchor (prefix match, for leadingDigits)
  */
-function stringToRegexLiteral(pattern: string, anchored: boolean): string {
+function stringToRegexLiteral(pattern: string, anchored: boolean, prefixOnly = false): string {
   // The pattern is stored with double backslashes (for JSON/string),
   // but RegExp literals use single backslashes
   // e.g., "\\d" in string becomes "\d" in /\d/
-  const prefix = anchored ? "^" : ""
+  const prefix = anchored || prefixOnly ? "^" : ""
   const suffix = anchored ? "$" : ""
   return `/${prefix}${pattern}${suffix}/`
 }
 
 /**
+ * Convert an array of lengths to a bitmap.
+ * Each bit position represents whether that length is valid.
+ *
+ * @example lengthsToBitmap([7, 8, 9]) => 896 (0b1110000000)
+ */
+function lengthsToBitmap(lengths: number[]): number {
+  let bitmap = 0
+  for (const len of lengths) {
+    bitmap |= 1 << len
+  }
+  return bitmap
+}
+
+/**
  * Serialize a PhoneNumberDesc with RegExp literal for pattern
+ * and bitmap for possibleLengths
  */
 function serializePhoneDesc(desc: PhoneNumberDesc, indent: string): string {
   const lines: string[] = ["{"]
@@ -611,17 +630,22 @@ function serializePhoneDesc(desc: PhoneNumberDesc, indent: string): string {
     lines.push(`${innerIndent}example: ${JSON.stringify(desc.example)},`)
   }
   if (desc.possibleLengths) {
-    lines.push(`${innerIndent}possibleLengths: ${JSON.stringify(desc.possibleLengths)},`)
+    const bitmap = lengthsToBitmap(desc.possibleLengths)
+    // Add comment showing which lengths the bitmap represents
+    lines.push(
+      `${innerIndent}possibleLengths: ${bitmap}, // bits: ${desc.possibleLengths.join(",")}`
+    )
   }
   if (desc.possibleLengthsLocalOnly) {
+    const bitmap = lengthsToBitmap(desc.possibleLengthsLocalOnly)
     lines.push(
-      `${innerIndent}possibleLengthsLocalOnly: ${JSON.stringify(desc.possibleLengthsLocalOnly)},`
+      `${innerIndent}possibleLengthsLocalOnly: ${bitmap} // bits: ${desc.possibleLengthsLocalOnly.join(",")}`
     )
   }
 
-  // Remove trailing comma from last line
+  // Remove trailing comma from last line (but keep comments)
   if (lines.length > 1) {
-    lines[lines.length - 1] = lines[lines.length - 1].replace(/,$/, "")
+    lines[lines.length - 1] = lines[lines.length - 1].replace(/,(\s*\/\/.*)$/, "$1")
   }
 
   lines.push(`${indent}}`)
@@ -629,26 +653,26 @@ function serializePhoneDesc(desc: PhoneNumberDesc, indent: string): string {
 }
 
 /**
- * Serialize a NumberFormat (patterns stay as strings)
+ * Serialize a NumberFormat with pattern and leadingDigits as RegExp
  */
 function serializeNumberFormat(fmt: NumberFormat, indent: string): string {
   const lines: string[] = ["{"]
   const innerIndent = indent + "  "
 
-  lines.push(`${innerIndent}pattern: ${JSON.stringify(fmt.pattern)},`)
+  // Pattern is anchored RegExp with capture groups for .replace()
+  lines.push(`${innerIndent}pattern: ${stringToRegexLiteral(fmt.pattern, true)},`)
   lines.push(`${innerIndent}format: ${JSON.stringify(fmt.format)},`)
 
+  // leadingDigits: combine multiple patterns into single RegExp with |
   if (fmt.leadingDigits && fmt.leadingDigits.length > 0) {
     if (fmt.leadingDigits.length === 1) {
-      lines.push(`${innerIndent}leadingDigits: [${JSON.stringify(fmt.leadingDigits[0])}],`)
+      lines.push(
+        `${innerIndent}leadingDigits: ${stringToRegexLiteral(fmt.leadingDigits[0], false, true)},`
+      )
     } else {
-      lines.push(`${innerIndent}leadingDigits: [`)
-      for (const ld of fmt.leadingDigits) {
-        lines.push(`${innerIndent}  ${JSON.stringify(ld)},`)
-      }
-      // Remove trailing comma
-      lines[lines.length - 1] = lines[lines.length - 1].replace(/,$/, "")
-      lines.push(`${innerIndent}],`)
+      // Combine patterns: [/^1/, /^2/] → /^(?:1|2)/
+      const combined = `(?:${fmt.leadingDigits.join("|")})`
+      lines.push(`${innerIndent}leadingDigits: ${stringToRegexLiteral(combined, false, true)},`)
     }
   }
 
@@ -724,7 +748,7 @@ function generateRegionModule(meta: RegionMetadata): string {
     lines.push(`${indent}mainCountryForCode: true,`)
   }
   if (meta.leadingDigits) {
-    lines.push(`${indent}leadingDigits: ${JSON.stringify(meta.leadingDigits)},`)
+    lines.push(`${indent}leadingDigits: ${stringToRegexLiteral(meta.leadingDigits, false, true)},`)
   }
 
   // Phone number descriptions with RegExp patterns
@@ -879,7 +903,7 @@ function serializeRegionMetadata(meta: RegionMetadata, baseIndent: string): stri
     lines.push(`${indent}mainCountryForCode: true,`)
   }
   if (meta.leadingDigits) {
-    lines.push(`${indent}leadingDigits: ${JSON.stringify(meta.leadingDigits)},`)
+    lines.push(`${indent}leadingDigits: ${stringToRegexLiteral(meta.leadingDigits, false, true)},`)
   }
 
   // Phone number descriptions with RegExp patterns

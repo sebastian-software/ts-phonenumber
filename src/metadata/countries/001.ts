@@ -16,9 +16,9 @@ const metadata: RegionMetadata = {
   },
   formats: [
     {
-      pattern: "(\\d)(\\d{4})(\\d{4})",
+      pattern: /^(\d)(\d{4})(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["[1359]"]
+      leadingDigits: /^[1359]/
     }
   ]
 }

@@ -50,8 +50,18 @@ export type {
   RegionMetadata,
   MetadataBundle,
   PhoneNumberDesc,
-  NumberFormat
+  NumberFormat,
+  LengthBitmap
 } from "./metadata/index.js"
+
+// Length bitmap utilities
+export {
+  isLengthValid,
+  getMinLength,
+  getMaxLength,
+  bitmapToLengths,
+  lengthsToBitmap
+} from "./lengthBitmap.js"
 
 export {
   loadRegionMetadata,

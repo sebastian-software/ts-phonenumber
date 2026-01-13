@@ -347,29 +347,44 @@ Implementation hints (non-binding):
 
 ---
 
-## 13. WASM Investigation (Both Node and Browser)
+## 13. WASM Investigation — Decision: Not Pursued
 
-### 13.1 Priority
-
-- **Post-MVP** — WASM investigation is scheduled after stable TypeScript implementation.
-
-### 13.2 Goal
+### 13.1 Original Goal
 
 Determine whether a WASM implementation of the parsing/validation engine yields meaningful improvements.
 
-### 13.3 Implementation language
+### 13.2 Decision: WASM Not Beneficial
 
-- **Rust** with `wasm-bindgen` for WASM compilation.
+After analysis, WASM was determined to **not provide meaningful benefits** for this library:
 
-### 13.4 Requirements
+1. **V8's RegExp engine is already highly optimized C++**
+   - JavaScript RegExp is not interpreted; it compiles to native machine code
+   - V8's Irregexp engine has had years of optimization
+   - WASM cannot outperform native RegExp execution
 
-- Provide benchmark suite comparing:
-  - TS engine vs WASM engine
-- Evaluate:
-  - cold and warm performance
-  - bundle impact (browser)
-  - operational complexity
-- Record outcome via ADR.
+2. **Primary bottleneck is RegExp compilation, not execution**
+   - Pattern matching itself is fast; the cost is creating `new RegExp()`
+   - Solution: Pre-compile RegExp as literals at build time (implemented)
+   - This eliminates the bottleneck entirely in pure TypeScript
+
+3. **WASM overhead would likely hurt performance**
+   - WASM ↔ JS boundary crossing has non-trivial cost
+   - String marshalling between JS and WASM is expensive
+   - For small, fast operations like phone validation, overhead dominates
+
+4. **Bundle size impact**
+   - WASM modules add significant bytes to browser bundles
+   - Would counteract the goal of small, browser-viable bundles
+
+### 13.3 Implementation Instead: Pre-compiled RegExp
+
+Instead of WASM, the following optimizations were implemented:
+
+- **PhoneNumberDesc.pattern**: Pre-compiled as RegExp literals (anchored: `^pattern$`)
+- **NumberFormat.leadingDigits[]**: Pre-compiled as RegExp literals (prefix: `^pattern`)
+- **RegionMetadata.leadingDigits**: Pre-compiled as RegExp literal (prefix: `^pattern`)
+
+These RegExp literals are evaluated once at module load time, eliminating all runtime RegExp construction for validation and formatting operations.
 
 ---
 

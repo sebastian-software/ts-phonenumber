@@ -6,6 +6,7 @@ import type { ParseOptions, ValidationResult, ParsedPhoneNumber } from "./types.
 import { PhoneNumberType } from "./types.js"
 import { parse, parseSync } from "./parse.js"
 import { loadRegionMetadata, getRegionsForCountryCode } from "./metadata/index.js"
+import { getMinLength, getMaxLength } from "./lengthBitmap.js"
 
 /**
  * Validates a phone number and returns detailed validation results.
@@ -210,16 +211,16 @@ export async function isPossibleNumber(
     nationalNumber = input.nationalNumber
   }
 
-  // Get possible lengths for this country code
-  const possibleLengths = await getPossibleLengths(countryCode)
+  // Get possible lengths bitmap for this country code
+  const lengthsBitmap = await getPossibleLengthsBitmap(countryCode)
 
-  if (!possibleLengths || possibleLengths.length === 0) {
+  if (lengthsBitmap === null || lengthsBitmap === 0) {
     return PossibleNumberResult.INVALID_COUNTRY_CODE
   }
 
   const nsnLength = nationalNumber.length
-  const minLength = Math.min(...possibleLengths)
-  const maxLength = Math.max(...possibleLengths)
+  const minLength = getMinLength(lengthsBitmap)
+  const maxLength = getMaxLength(lengthsBitmap)
 
   if (nsnLength < minLength) {
     return PossibleNumberResult.TOO_SHORT
@@ -229,6 +230,9 @@ export async function isPossibleNumber(
     return PossibleNumberResult.TOO_LONG
   }
 
+  // For exact length validation, check the bitmap
+  // Note: IS_POSSIBLE means length is in valid range, not exact match
+  // This matches libphonenumber behavior for isPossibleNumber
   return PossibleNumberResult.IS_POSSIBLE
 }
 
@@ -365,9 +369,10 @@ async function extractNumberComponents(
 }
 
 /**
- * Gets possible lengths for a country code from metadata.
+ * Gets possible lengths bitmap for a country code from metadata.
+ * Returns a bitmap where each bit represents a valid length.
  */
-async function getPossibleLengths(countryCode: number): Promise<number[] | null> {
+async function getPossibleLengthsBitmap(countryCode: number): Promise<number | null> {
   const regions = getRegionsForCountryCode(countryCode)
 
   const firstRegion = regions?.[0]

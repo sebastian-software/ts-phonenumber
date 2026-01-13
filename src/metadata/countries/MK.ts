@@ -15,38 +15,38 @@ const metadata: RegionMetadata = {
   nationalPrefix: "0",
   generalDesc: {
     pattern: /^[2-578]\d{7}$/,
-    possibleLengths: [8]
+    possibleLengths: 256 // bits: 8
   },
   fixedLine: {
     pattern:
       /^(?:(?:2(?:62|77)0|3444)\d|4[56]440)\d{3}|(?:34|4[357])700\d{3}|(?:2(?:[0-3]\d|5[0-578]|6[01]|82)|3(?:1[3-68]|[23][2-68]|4[23568])|4(?:[23][2-68]|4[3-68]|5[2568]|6[25-8]|7[24-68]|8[4-68]))\d{5}$/,
     example: "22012345",
-    possibleLengths: [8],
-    possibleLengthsLocalOnly: [6, 7]
+    possibleLengths: 256, // bits: 8
+    possibleLengthsLocalOnly: 192 // bits: 6,7
   },
   mobile: {
     pattern:
       /^7(?:3555|(?:474|9[019]7)7)\d{3}|7(?:[0-25-8]\d\d|3(?:[1-478]\d|6[01])|4(?:2\d|60|7[01578])|9(?:[2-4]\d|5[01]|7[015]))\d{4}$/,
     example: "72345678",
-    possibleLengths: [8]
+    possibleLengths: 256 // bits: 8
   },
   formats: [
     {
-      pattern: "(\\d)(\\d{3})(\\d{4})",
+      pattern: /^(\d)(\d{3})(\d{4})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["2|34[47]|4(?:[37]7|5[47]|64)"],
+      leadingDigits: /^2|34[47]|4(?:[37]7|5[47]|64)/,
       nationalPrefixFormattingRule: "$NP$FG"
     },
     {
-      pattern: "(\\d{2})(\\d{3})(\\d{3})",
+      pattern: /^(\d{2})(\d{3})(\d{3})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["[347]"],
+      leadingDigits: /^[347]/,
       nationalPrefixFormattingRule: "$NP$FG"
     },
     {
-      pattern: "(\\d{3})(\\d)(\\d{2})(\\d{2})",
+      pattern: /^(\d{3})(\d)(\d{2})(\d{2})$/,
       format: "$1 $2 $3 $4",
-      leadingDigits: ["[58]"],
+      leadingDigits: /^[58]/,
       nationalPrefixFormattingRule: "$NP$FG"
     }
   ]

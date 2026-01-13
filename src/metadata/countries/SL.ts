@@ -15,24 +15,24 @@ const metadata: RegionMetadata = {
   nationalPrefix: "0",
   generalDesc: {
     pattern: /^(?:[237-9]\d|66)\d{6}$/,
-    possibleLengths: [8]
+    possibleLengths: 256 // bits: 8
   },
   fixedLine: {
     pattern: /^22[2-4][2-9]\d{4}$/,
     example: "22221234",
-    possibleLengths: [8],
-    possibleLengthsLocalOnly: [6]
+    possibleLengths: 256, // bits: 8
+    possibleLengthsLocalOnly: 64 // bits: 6
   },
   mobile: {
     pattern: /^(?:25|3[0-5]|66|7[1-9]|8[08]|9[09])\d{6}$/,
     example: "25123456",
-    possibleLengths: [8]
+    possibleLengths: 256 // bits: 8
   },
   formats: [
     {
-      pattern: "(\\d{2})(\\d{6})",
+      pattern: /^(\d{2})(\d{6})$/,
       format: "$1 $2",
-      leadingDigits: ["[236-9]"],
+      leadingDigits: /^[236-9]/,
       nationalPrefixFormattingRule: "($NP$FG)"
     }
   ]

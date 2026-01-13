@@ -2,7 +2,13 @@
  * Metadata module exports.
  */
 
-export type { PhoneNumberDesc, NumberFormat, RegionMetadata, MetadataBundle } from "./types.js"
+export type {
+  PhoneNumberDesc,
+  NumberFormat,
+  RegionMetadata,
+  MetadataBundle,
+  LengthBitmap
+} from "./types.js"
 
 export {
   loadRegionMetadata,

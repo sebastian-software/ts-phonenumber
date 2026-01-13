@@ -14,33 +14,33 @@ const metadata: RegionMetadata = {
   internationalPrefix: "00",
   generalDesc: {
     pattern: /^[49]\d{8}|4\d{6}$/,
-    possibleLengths: [7, 9]
+    possibleLengths: 640 // bits: 7,9
   },
   fixedLine: {
     pattern: /^443\d{6}$/,
     example: "443201234",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   mobile: {
     pattern: /^9(?:5\d|6[569]|77)\d{6}$/,
     example: "955012345",
-    possibleLengths: [9]
+    possibleLengths: 512 // bits: 9
   },
   voip: {
     pattern: /^40\d{5}$/,
     example: "4012345",
-    possibleLengths: [7]
+    possibleLengths: 128 // bits: 7
   },
   formats: [
     {
-      pattern: "(\\d{3})(\\d{4})",
+      pattern: /^(\d{3})(\d{4})$/,
       format: "$1 $2",
-      leadingDigits: ["40"]
+      leadingDigits: /^40/
     },
     {
-      pattern: "(\\d{3})(\\d{3})(\\d{3})",
+      pattern: /^(\d{3})(\d{3})(\d{3})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["[49]"]
+      leadingDigits: /^[49]/
     }
   ]
 }

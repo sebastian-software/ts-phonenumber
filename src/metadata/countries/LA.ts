@@ -15,36 +15,36 @@ const metadata: RegionMetadata = {
   nationalPrefix: "0",
   generalDesc: {
     pattern: /^[23]\d{9}|3\d{8}|(?:[235-8]\d|41)\d{6}$/,
-    possibleLengths: [8, 9, 10]
+    possibleLengths: 1792 // bits: 8,9,10
   },
   fixedLine: {
     pattern: /^(?:2[13]|[35-7][14]|41|8[1468])\d{6}$/,
     example: "21212862",
-    possibleLengths: [8],
-    possibleLengthsLocalOnly: [6]
+    possibleLengths: 256, // bits: 8
+    possibleLengthsLocalOnly: 64 // bits: 6
   },
   mobile: {
     pattern: /^(?:20(?:[23579]\d|8[78])|30[24]\d)\d{6}|30\d{7}$/,
     example: "2023123456",
-    possibleLengths: [9, 10]
+    possibleLengths: 1536 // bits: 9,10
   },
   formats: [
     {
-      pattern: "(\\d{2})(\\d{3})(\\d{3})",
+      pattern: /^(\d{2})(\d{3})(\d{3})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["2[13]|3[14]|[4-8]"],
+      leadingDigits: /^2[13]|3[14]|[4-8]/,
       nationalPrefixFormattingRule: "$NP$FG"
     },
     {
-      pattern: "(\\d{2})(\\d{2})(\\d{2})(\\d{3})",
+      pattern: /^(\d{2})(\d{2})(\d{2})(\d{3})$/,
       format: "$1 $2 $3 $4",
-      leadingDigits: ["3"],
+      leadingDigits: /^3/,
       nationalPrefixFormattingRule: "$NP$FG"
     },
     {
-      pattern: "(\\d{2})(\\d{2})(\\d{3})(\\d{3})",
+      pattern: /^(\d{2})(\d{2})(\d{3})(\d{3})$/,
       format: "$1 $2 $3 $4",
-      leadingDigits: ["[23]"],
+      leadingDigits: /^[23]/,
       nationalPrefixFormattingRule: "$NP$FG"
     }
   ]

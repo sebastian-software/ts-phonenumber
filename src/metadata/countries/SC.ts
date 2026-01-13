@@ -15,28 +15,28 @@ const metadata: RegionMetadata = {
   preferredInternationalPrefix: "00",
   generalDesc: {
     pattern: /^(?:[2489]\d|64)\d{5}$/,
-    possibleLengths: [7]
+    possibleLengths: 128 // bits: 7
   },
   fixedLine: {
     pattern: /^4[2-46]\d{5}$/,
     example: "4217123",
-    possibleLengths: [7]
+    possibleLengths: 128 // bits: 7
   },
   mobile: {
     pattern: /^2[125-8]\d{5}$/,
     example: "2510123",
-    possibleLengths: [7]
+    possibleLengths: 128 // bits: 7
   },
   voip: {
     pattern: /^971\d{4}|(?:64|95)\d{5}$/,
     example: "6412345",
-    possibleLengths: [7]
+    possibleLengths: 128 // bits: 7
   },
   formats: [
     {
-      pattern: "(\\d)(\\d{3})(\\d{3})",
+      pattern: /^(\d)(\d{3})(\d{3})$/,
       format: "$1 $2 $3",
-      leadingDigits: ["[246]|9[57]"]
+      leadingDigits: /^[246]|9[57]/
     }
   ]
 }

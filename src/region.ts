@@ -165,9 +165,9 @@ export async function getRegionsForCode(countryCode: number): Promise<string[] |
 /* v8 ignore start - internal function for multi-region matching, tested indirectly */
 function matchesRegion(nationalNumber: string, metadata: RegionMetadata): boolean {
   // Check leading digits if specified (for shared country codes)
+  // leadingDigits is a pre-compiled RegExp with ^ anchor
   if (metadata.leadingDigits) {
-    const regex = new RegExp(`^${metadata.leadingDigits}`)
-    if (!regex.test(nationalNumber)) {
+    if (!metadata.leadingDigits.test(nationalNumber)) {
       return false
     }
   }
