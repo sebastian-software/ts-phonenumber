@@ -84,30 +84,30 @@
     "benchmark": "tsx scripts/benchmark.ts"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
+    "@eslint/js": "^9.39.2",
     "@types/node": "^22.10.7",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.0.17",
     "awesome-phonenumber": "^7.6.0",
-    "eslint": "^9.18.0",
+    "eslint": "^9.39.2",
     "fast-xml-parser": "^5.3.3",
-    "globals": "^15.14.0",
+    "globals": "^17.0.0",
     "google-libphonenumber": "^3.2.43",
     "husky": "^9.1.7",
     "libphonenumber-js": "^1.12.34",
-    "lint-staged": "^15.3.0",
-    "prettier": "^3.4.2",
-    "release-it": "^18.1.2",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
+    "release-it": "^19.2.3",
     "tinybench": "^6.0.0",
-    "tsup": "^8.3.5",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0",
-    "vitest": "^3.0.2"
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.53.0",
+    "vitest": "^4.0.17"
   },
   "dependencies": {
-    "commander": "^13.0.0"
+    "commander": "^14.0.2"
   },
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.28.0",
   "engines": {
     "node": ">=20"
   },
