@@ -4,7 +4,7 @@
 
 import type { ParseOptions, ValidationResult, ParsedPhoneNumber } from "./types.js"
 import { PhoneNumberType } from "./types.js"
-import { parse } from "./parse.js"
+import { parse, parseSync } from "./parse.js"
 import { loadRegionMetadata, getRegionsForCountryCode } from "./metadata/index.js"
 
 /**
@@ -72,6 +72,83 @@ export async function validate(
  */
 export async function isValidNumber(input: string, options: ParseOptions = {}): Promise<boolean> {
   const result = await validate(input, options)
+  return result.isValid
+}
+
+/**
+ * Synchronously validates a phone number and returns detailed validation results.
+ * Requires metadata to be pre-loaded via registerMetadata() or preloadRegions().
+ *
+ * @param input - The phone number string to validate
+ * @param options - Parsing options including default region
+ * @returns Validation result with validity status and detected type
+ *
+ * @example
+ * ```typescript
+ * // Pre-load metadata first
+ * registerMetadata(DE)
+ *
+ * // Then use sync validation
+ * const result = validateSync("+49 170 1234567")
+ * if (result.isValid) {
+ *   console.log("Valid number of type:", result.type)
+ * }
+ * ```
+ */
+export function validateSync(input: string, options: ParseOptions = {}): ValidationResult {
+  if (!input || typeof input !== "string") {
+    return {
+      isValid: false,
+      type: PhoneNumberType.INVALID,
+      error: "Input must be a non-empty string"
+    }
+  }
+
+  try {
+    const parsed = parseSync(input, options)
+
+    if (!parsed.isValid || parsed.type === PhoneNumberType.INVALID) {
+      return {
+        isValid: false,
+        type: PhoneNumberType.INVALID,
+        error: "Number does not match any valid pattern for the region"
+      }
+    }
+
+    // Only LANDLINE, MOBILE, and VOIP are valid types
+    const validTypes = [PhoneNumberType.LANDLINE, PhoneNumberType.MOBILE, PhoneNumberType.VOIP]
+
+    if (!validTypes.includes(parsed.type)) {
+      return {
+        isValid: false,
+        type: PhoneNumberType.INVALID,
+        error: "Number type is not supported (only LANDLINE, MOBILE, VOIP are valid)"
+      }
+    }
+
+    return {
+      isValid: true,
+      type: parsed.type
+    }
+  } catch (error) {
+    return {
+      isValid: false,
+      type: PhoneNumberType.INVALID,
+      error: error instanceof Error ? error.message : "Unknown validation error"
+    }
+  }
+}
+
+/**
+ * Simple synchronous validation check returning a boolean.
+ * Requires metadata to be pre-loaded via registerMetadata() or preloadRegions().
+ *
+ * @param input - The phone number string to validate
+ * @param options - Parsing options including default region
+ * @returns True if the number is valid, false otherwise
+ */
+export function isValidNumberSync(input: string, options: ParseOptions = {}): boolean {
+  const result = validateSync(input, options)
   return result.isValid
 }
 

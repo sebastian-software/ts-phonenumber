@@ -4,8 +4,8 @@
 
 import type { ParsedPhoneNumber, ParseOptions } from "./types.js"
 import { PhoneNumberFormat, PhoneNumberType } from "./types.js"
-import { parse } from "./parse.js"
-import { loadRegionMetadata } from "./metadata/index.js"
+import { parse, parseSync } from "./parse.js"
+import { loadRegionMetadata, getCachedRegionMetadata } from "./metadata/index.js"
 import type { RegionMetadata, NumberFormat } from "./metadata/index.js"
 
 /**
@@ -43,6 +43,61 @@ export async function format(
 
     case PhoneNumberFormat.RFC3966:
       return formatRFC3966(phoneNumber)
+
+    default:
+      return formatE164(phoneNumber)
+  }
+}
+
+/**
+ * Synchronously formats a phone number according to the specified format.
+ * Requires metadata to be pre-loaded via registerMetadata() or preloadRegions().
+ *
+ * @param input - The phone number string or ParsedPhoneNumber to format
+ * @param targetFormat - The desired output format
+ * @param options - Parsing options (only used if input is a string)
+ * @returns The formatted phone number string, or empty string if invalid
+ *
+ * @example
+ * ```typescript
+ * // Pre-load metadata first
+ * registerMetadata(DE)
+ *
+ * // Then use sync formatting
+ * const result = formatSync("+49 170 1234567", PhoneNumberFormat.INTERNATIONAL)
+ * ```
+ */
+export function formatSync(
+  input: string | ParsedPhoneNumber,
+  targetFormat: PhoneNumberFormat = PhoneNumberFormat.E164,
+  options: ParseOptions = {}
+): string {
+  // Parse if input is a string
+  const phoneNumber = typeof input === "string" ? parseSync(input, options) : input
+
+  // Cannot format invalid numbers
+  if (!phoneNumber.isValid || phoneNumber.type === PhoneNumberType.INVALID) {
+    return ""
+  }
+
+  // Fast path for formats that don't need metadata
+  if (targetFormat === PhoneNumberFormat.E164) {
+    return formatE164(phoneNumber)
+  }
+
+  if (targetFormat === PhoneNumberFormat.RFC3966) {
+    return formatRFC3966(phoneNumber)
+  }
+
+  // Only load metadata for formats that need it
+  const metadata = getCachedRegionMetadata(phoneNumber.regionCode)
+
+  switch (targetFormat) {
+    case PhoneNumberFormat.INTERNATIONAL:
+      return formatInternational(phoneNumber, metadata)
+
+    case PhoneNumberFormat.NATIONAL:
+      return formatNational(phoneNumber, metadata)
 
     default:
       return formatE164(phoneNumber)

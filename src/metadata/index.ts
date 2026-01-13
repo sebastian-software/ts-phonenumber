@@ -9,6 +9,8 @@ export {
   loadMetadataBundle,
   getRegionsForCountryCode,
   getCachedRegionMetadata,
+  getRegionMetadataSync,
+  isMetadataLoaded,
   clearMetadataCache,
   preloadRegions,
   registerMetadata

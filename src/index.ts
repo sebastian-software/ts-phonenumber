@@ -18,16 +18,24 @@ export {
   type ValidationResult
 } from "./types.js"
 
-// Core functions
-export { parse } from "./parse.js"
+// Core functions (async)
+export { parse, parseSync } from "./parse.js"
 export {
   validate,
+  validateSync,
   isValidNumber,
+  isValidNumberSync,
   isPossibleNumber,
   isPossibleNumberWithReason,
   PossibleNumberResult
 } from "./validate.js"
-export { format, formatE164Only, formatInternationalOnly, formatNationalOnly } from "./format.js"
+export {
+  format,
+  formatSync,
+  formatE164Only,
+  formatInternationalOnly,
+  formatNationalOnly
+} from "./format.js"
 export { getType, isMobile, isLandline, isVoIP } from "./getType.js"
 export { isNumberMatch } from "./match.js"
 export {
@@ -50,5 +58,8 @@ export {
   loadMetadataBundle,
   preloadRegions,
   clearMetadataCache,
-  registerMetadata
+  registerMetadata,
+  getCachedRegionMetadata,
+  getRegionMetadataSync,
+  isMetadataLoaded
 } from "./metadata/index.js"

@@ -131,6 +131,36 @@ export function getCachedRegionMetadata(regionCode: string): RegionMetadata | un
 }
 
 /**
+ * Gets metadata for a region synchronously.
+ * Throws an error if the metadata hasn't been pre-loaded.
+ *
+ * @param regionCode - ISO 3166-1 alpha-2 region code
+ * @returns The region metadata
+ * @throws Error if metadata is not pre-loaded
+ */
+export function getRegionMetadataSync(regionCode: string): RegionMetadata {
+  const normalizedCode = regionCode.toUpperCase()
+  const cached = regionCache.get(normalizedCode)
+  if (!cached) {
+    throw new Error(
+      `Metadata for region "${normalizedCode}" is not loaded. ` +
+        `Call registerMetadata() or loadRegionMetadata() first.`
+    )
+  }
+  return cached
+}
+
+/**
+ * Checks if metadata for a region is loaded.
+ *
+ * @param regionCode - ISO 3166-1 alpha-2 region code
+ * @returns True if metadata is loaded
+ */
+export function isMetadataLoaded(regionCode: string): boolean {
+  return regionCache.has(regionCode.toUpperCase())
+}
+
+/**
  * Clears all cached metadata.
  * Useful for testing or when switching between metadata versions.
  */

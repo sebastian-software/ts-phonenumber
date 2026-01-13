@@ -4,7 +4,12 @@
 
 import type { ParsedPhoneNumber, ParseOptions } from "./types.js"
 import { PhoneNumberType } from "./types.js"
-import { loadRegionMetadata, getRegionsForCountryCode } from "./metadata/index.js"
+import {
+  loadRegionMetadata,
+  getRegionsForCountryCode,
+  getCachedRegionMetadata,
+  getRegionMetadataSync
+} from "./metadata/index.js"
 import type { RegionMetadata } from "./metadata/index.js"
 
 /** Map of country calling codes to their digit lengths (1-3 digits) */
@@ -88,6 +93,57 @@ export async function parse(input: string, options: ParseOptions = {}): Promise<
   }
 
   return parseNational(normalized, defaultRegion, input)
+}
+
+/**
+ * Synchronously parses a phone number string.
+ * Requires metadata to be pre-loaded via registerMetadata() or preloadRegions().
+ *
+ * @param input - The phone number string to parse
+ * @param options - Parsing options including default region
+ * @returns The parsed phone number or a result with INVALID type
+ * @throws Error if required metadata is not pre-loaded
+ *
+ * @example
+ * ```typescript
+ * // Pre-load metadata first
+ * registerMetadata(DE)
+ *
+ * // Then use sync parsing
+ * const result = parseSync("+49 170 1234567")
+ * ```
+ */
+export function parseSync(input: string, options: ParseOptions = {}): ParsedPhoneNumber {
+  const { defaultRegion } = options
+
+  // Create an invalid result template
+  const invalidResult = (rawInput: string): ParsedPhoneNumber => ({
+    countryCode: 0,
+    nationalNumber: "",
+    regionCode: "",
+    type: PhoneNumberType.INVALID,
+    isValid: false,
+    rawInput
+  })
+
+  // Normalize input
+  const normalized = normalizeInput(input)
+
+  if (!normalized) {
+    return invalidResult(input)
+  }
+
+  // Check if it's E.164 format
+  if (normalized.startsWith("+")) {
+    return parseE164Sync(normalized, input)
+  }
+
+  // For national format, we need a default region
+  if (!defaultRegion) {
+    return invalidResult(input)
+  }
+
+  return parseNationalSync(normalized, defaultRegion, input)
 }
 
 /**
@@ -292,6 +348,101 @@ async function parseNational(
 
   if (type === PhoneNumberType.INVALID) {
     return invalidResult
+  }
+
+  return {
+    countryCode: metadata.countryCode,
+    nationalNumber,
+    regionCode: metadata.regionCode,
+    type,
+    isValid: true,
+    rawInput
+  }
+}
+
+/**
+ * Synchronously parses a phone number in E.164 format.
+ * Uses only cached metadata - does not load metadata on demand.
+ */
+function parseE164Sync(normalized: string, rawInput: string): ParsedPhoneNumber {
+  const invalidResult: ParsedPhoneNumber = {
+    countryCode: 0,
+    nationalNumber: "",
+    regionCode: "",
+    type: PhoneNumberType.INVALID,
+    isValid: false,
+    rawInput
+  }
+
+  // Validate basic E.164 format
+  if (!E164_PATTERN.test(normalized)) {
+    return invalidResult
+  }
+
+  // Extract country code (try 1, 2, 3 digit codes)
+  const withoutPlus = normalized.slice(1)
+
+  for (const length of COUNTRY_CODE_LENGTHS) {
+    const potentialCode = parseInt(withoutPlus.slice(0, length), 10)
+    const nationalNumber = withoutPlus.slice(length)
+
+    // Try to find a region for this country code
+    const regions = getRegionsForCountryCode(potentialCode)
+
+    if (regions && regions.length > 0) {
+      // Try each region to find a match (only check cached metadata)
+      for (const regionCode of regions) {
+        const metadata = getCachedRegionMetadata(regionCode)
+        if (metadata) {
+          const type = determineType(nationalNumber, metadata)
+          if (type !== PhoneNumberType.INVALID) {
+            return {
+              countryCode: potentialCode,
+              nationalNumber,
+              regionCode,
+              type,
+              isValid: true,
+              rawInput
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return invalidResult
+}
+
+/**
+ * Synchronously parses a phone number in national format.
+ * Uses getRegionMetadataSync which throws if metadata isn't loaded.
+ */
+function parseNationalSync(
+  normalized: string,
+  defaultRegion: string,
+  rawInput: string
+): ParsedPhoneNumber {
+  const metadata = getRegionMetadataSync(defaultRegion)
+
+  let nationalNumber = normalized
+
+  // Strip national prefix if present
+  if (metadata.nationalPrefix && normalized.startsWith(metadata.nationalPrefix)) {
+    nationalNumber = normalized.slice(metadata.nationalPrefix.length)
+  }
+
+  // Determine the type
+  const type = determineType(nationalNumber, metadata)
+
+  if (type === PhoneNumberType.INVALID) {
+    return {
+      countryCode: 0,
+      nationalNumber: "",
+      regionCode: "",
+      type: PhoneNumberType.INVALID,
+      isValid: false,
+      rawInput
+    }
   }
 
   return {
