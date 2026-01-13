@@ -11,7 +11,7 @@ import type { RegionMetadata, NumberFormat } from "./metadata/index.js"
 /** Cache for compiled regex patterns */
 const regexCache = new Map<string, RegExp>()
 
-function getCachedRegex(pattern: string, anchored: boolean = false): RegExp {
+function getCachedRegex(pattern: string, anchored = false): RegExp {
   const key = anchored ? `^${pattern}$` : pattern
   let regex = regexCache.get(key)
   if (!regex) {

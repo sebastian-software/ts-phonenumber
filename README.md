@@ -9,19 +9,19 @@
 
 ## Performance
 
-We benchmarked ts-phonenumber against the most popular phone number libraries. **ts-phonenumber wins all 7 benchmarks.**
+**5x faster parsing, 3x faster formatting, 11x faster pipelines** — ts-phonenumber wins all 7 benchmarks against the most popular phone number libraries.
 
-| Benchmark       |  ts-phonenumber | [google-libphonenumber] | [libphonenumber-js] | [awesome-phonenumber] |
-| --------------- | --------------: | ----------------------: | ------------------: | --------------------: |
-| Parse E.164     | **1.02M ops/s** |              315K ops/s |          467K ops/s |             64K ops/s |
-| Parse national  | **1.21M ops/s** |              216K ops/s |          339K ops/s |             58K ops/s |
-| Validate        |  **996K ops/s** |              244K ops/s |          283K ops/s |                     — |
-| Format E.164    | **32.0M ops/s** |             22.1M ops/s |          7.7M ops/s |           16.9M ops/s |
-| Format Intl     |  **718K ops/s** |              378K ops/s |          315K ops/s |            377K ops/s |
-| Full pipeline   |  **978K ops/s** |              135K ops/s |          325K ops/s |                     — |
-| Batch (10 nums) | **38.9K ops/s** |             28.0K ops/s |         21.9K ops/s |            4.2K ops/s |
+| Benchmark       | ts-phonenumber | vs [libphonenumber-js] | vs [google-libphonenumber] | vs [awesome-phonenumber] |
+| --------------- | -------------: | :--------------------: | :------------------------: | :----------------------: |
+| Parse E.164     |    **1.52M**/s |      3.2x faster       |        5.0x faster         |        25x faster        |
+| Parse national  |    **2.02M**/s |      6.0x faster       |        9.6x faster         |        36x faster        |
+| Validate        |    **1.48M**/s |      5.3x faster       |        6.1x faster         |            —             |
+| Format E.164    |    **31.9M**/s |      4.2x faster       |        1.5x faster         |       1.9x faster        |
+| Format Intl     |    **1.03M**/s |      3.3x faster       |        2.8x faster         |       2.8x faster        |
+| Full pipeline   |    **1.46M**/s |      4.5x faster       |        11.1x faster        |            —             |
+| Batch (10 nums) |     **151K**/s |      7.2x faster       |        5.5x faster         |        38x faster        |
 
-<sub>Benchmarks run with pre-loaded metadata using synchronous API. Higher is better. Run `pnpm benchmark` to reproduce.</sub>
+<sub>Benchmarks on Apple M1 Ultra, Node.js v24. Sync API with pre-loaded metadata. Run `pnpm benchmark` to reproduce.</sub>
 
 [google-libphonenumber]: https://www.npmjs.com/package/google-libphonenumber
 [libphonenumber-js]: https://www.npmjs.com/package/libphonenumber-js
@@ -30,6 +30,7 @@ We benchmarked ts-phonenumber against the most popular phone number libraries. *
 ### Why so fast?
 
 - **Zero-overhead sync API** — When metadata is pre-loaded, no async overhead
+- **Cached regex compilation** — Patterns compiled once, reused on every call
 - **Optimized format paths** — E.164 formatting skips unnecessary lookups
 - **Lean metadata** — Only what's needed for LANDLINE, MOBILE, VOIP validation
 - **Modern TypeScript** — No legacy compatibility layers
@@ -201,14 +202,14 @@ All other types (toll-free, premium rate, shared cost, etc.) are treated as **IN
 
 Google's libphonenumber is the industry standard, but it comes with trade-offs:
 
-| Aspect          | libphonenumber                 | ts-phonenumber                   |
-| --------------- | ------------------------------ | -------------------------------- |
-| **Performance** | Baseline                       | **3-7x faster** (see benchmarks) |
-| Language        | Java (with JS port)            | TypeScript-native                |
-| Bundle size     | ~200-300KB (all metadata)      | ~5KB core + on-demand metadata   |
-| Number types    | All (toll-free, premium, etc.) | Only LANDLINE, MOBILE, VOIP      |
-| API style       | Synchronous only               | Dual: async + sync               |
-| Runtime         | Any                            | Node 20+, Bun, modern browsers   |
+| Aspect          | libphonenumber                 | ts-phonenumber                    |
+| --------------- | ------------------------------ | --------------------------------- |
+| **Performance** | Baseline                       | **5-11x faster** (see benchmarks) |
+| Language        | Java (with JS port)            | TypeScript-native                 |
+| Bundle size     | ~200-300KB (all metadata)      | ~5KB core + on-demand metadata    |
+| Number types    | All (toll-free, premium, etc.) | Only LANDLINE, MOBILE, VOIP       |
+| API style       | Synchronous only               | Dual: async + sync                |
+| Runtime         | Any                            | Node 20+, Bun, modern browsers    |
 
 **Our focus:** Most applications only need to validate user-provided phone numbers (mobile/landline). By excluding special service numbers, we keep bundles small, validation strict, and performance blazing fast.
 
