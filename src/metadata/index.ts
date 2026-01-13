@@ -7,6 +7,7 @@ export type { PhoneNumberDesc, NumberFormat, RegionMetadata, MetadataBundle } fr
 export {
   loadRegionMetadata,
   loadMetadataBundle,
+  registerBundle,
   getRegionsForCountryCode,
   getCachedRegionMetadata,
   getRegionMetadataSync,

@@ -56,6 +56,7 @@ export type {
 export {
   loadRegionMetadata,
   loadMetadataBundle,
+  registerBundle,
   preloadRegions,
   clearMetadataCache,
   registerMetadata,

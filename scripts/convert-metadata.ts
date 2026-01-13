@@ -14,6 +14,320 @@ import { XMLParser } from "fast-xml-parser"
 const ROOT_DIR = join(import.meta.dirname ?? ".", "..")
 const UPSTREAM_XML = join(ROOT_DIR, "upstream/resources/PhoneNumberMetadata.xml")
 const OUTPUT_DIR = join(ROOT_DIR, "src/metadata/countries")
+const BUNDLES_DIR = join(ROOT_DIR, "src/metadata/bundles")
+
+/**
+ * Bundle definitions for common market groupings.
+ * Each bundle contains countries that are typically used together.
+ */
+const BUNDLE_DEFINITIONS: Record<string, { description: string; regions: string[] }> = {
+  // Regional European bundles
+  DACH: {
+    description: "German-speaking countries (Germany, Austria, Switzerland)",
+    regions: ["DE", "AT", "CH"]
+  },
+  NORDICS: {
+    description: "Nordic countries (Denmark, Finland, Iceland, Norway, Sweden)",
+    regions: ["DK", "FI", "IS", "NO", "SE"]
+  },
+  BENELUX: {
+    description: "Benelux countries (Belgium, Netherlands, Luxembourg)",
+    regions: ["BE", "NL", "LU"]
+  },
+  BRITISH_ISLES: {
+    description: "British Isles (UK, Ireland, Channel Islands, Isle of Man)",
+    regions: ["GB", "IE", "GG", "JE", "IM"]
+  },
+
+  // Large regional bundles
+  EU: {
+    description: "European Union member states (27 countries)",
+    regions: [
+      "AT",
+      "BE",
+      "BG",
+      "HR",
+      "CY",
+      "CZ",
+      "DK",
+      "EE",
+      "FI",
+      "FR",
+      "DE",
+      "GR",
+      "HU",
+      "IE",
+      "IT",
+      "LV",
+      "LT",
+      "LU",
+      "MT",
+      "NL",
+      "PL",
+      "PT",
+      "RO",
+      "SK",
+      "SI",
+      "ES",
+      "SE"
+    ]
+  },
+  EUROPE: {
+    description: "All European countries including non-EU",
+    regions: [
+      // EU countries
+      "AT",
+      "BE",
+      "BG",
+      "HR",
+      "CY",
+      "CZ",
+      "DK",
+      "EE",
+      "FI",
+      "FR",
+      "DE",
+      "GR",
+      "HU",
+      "IE",
+      "IT",
+      "LV",
+      "LT",
+      "LU",
+      "MT",
+      "NL",
+      "PL",
+      "PT",
+      "RO",
+      "SK",
+      "SI",
+      "ES",
+      "SE",
+      // Non-EU European
+      "GB",
+      "CH",
+      "NO",
+      "IS",
+      "LI",
+      "AD",
+      "MC",
+      "SM",
+      "VA",
+      "AL",
+      "BA",
+      "ME",
+      "MK",
+      "RS",
+      "XK",
+      "MD",
+      "UA",
+      "BY"
+    ]
+  },
+
+  // Americas
+  NANP: {
+    description: "North American Numbering Plan (US, Canada, Caribbean)",
+    regions: [
+      "US",
+      "CA",
+      "PR",
+      "VI",
+      "GU",
+      "AS",
+      "MP",
+      // Caribbean NANP members
+      "AG",
+      "AI",
+      "BB",
+      "BM",
+      "BS",
+      "DM",
+      "DO",
+      "GD",
+      "JM",
+      "KN",
+      "KY",
+      "LC",
+      "MS",
+      "SX",
+      "TC",
+      "TT",
+      "VC",
+      "VG"
+    ]
+  },
+  LATAM: {
+    description: "Latin America (Central & South America)",
+    regions: [
+      "MX",
+      "GT",
+      "BZ",
+      "HN",
+      "SV",
+      "NI",
+      "CR",
+      "PA",
+      "CO",
+      "VE",
+      "EC",
+      "PE",
+      "BO",
+      "BR",
+      "PY",
+      "UY",
+      "AR",
+      "CL",
+      "CU",
+      "HT",
+      "GY",
+      "SR",
+      "GF"
+    ]
+  },
+
+  // Asia-Pacific
+  APAC: {
+    description: "Asia-Pacific major markets",
+    regions: [
+      "JP",
+      "KR",
+      "CN",
+      "HK",
+      "TW",
+      "MO",
+      "AU",
+      "NZ",
+      "SG",
+      "MY",
+      "TH",
+      "ID",
+      "PH",
+      "VN",
+      "IN",
+      "PK",
+      "BD",
+      "LK"
+    ]
+  },
+  EAST_ASIA: {
+    description: "East Asian markets (China, Japan, Korea, Taiwan)",
+    regions: ["CN", "JP", "KR", "TW", "HK", "MO"]
+  },
+  SOUTHEAST_ASIA: {
+    description: "Southeast Asian markets",
+    regions: ["SG", "MY", "TH", "ID", "PH", "VN", "MM", "KH", "LA", "BN"]
+  },
+  ANZ: {
+    description: "Australia and New Zealand",
+    regions: ["AU", "NZ"]
+  },
+
+  // Middle East & Africa
+  MENA: {
+    description: "Middle East and North Africa",
+    regions: [
+      "AE",
+      "SA",
+      "QA",
+      "KW",
+      "BH",
+      "OM",
+      "JO",
+      "LB",
+      "IL",
+      "PS",
+      "EG",
+      "MA",
+      "DZ",
+      "TN",
+      "LY",
+      "IQ",
+      "SY",
+      "YE"
+    ]
+  },
+  GCC: {
+    description: "Gulf Cooperation Council",
+    regions: ["AE", "SA", "QA", "KW", "BH", "OM"]
+  },
+
+  // Economic groupings
+  G7: {
+    description: "Group of Seven major economies",
+    regions: ["US", "GB", "DE", "FR", "JP", "IT", "CA"]
+  },
+  G20: {
+    description: "Group of Twenty major economies",
+    regions: [
+      "US",
+      "GB",
+      "DE",
+      "FR",
+      "JP",
+      "IT",
+      "CA", // G7
+      "CN",
+      "IN",
+      "BR",
+      "RU",
+      "AU",
+      "KR",
+      "MX",
+      "ID",
+      "SA",
+      "TR",
+      "AR",
+      "ZA"
+      // EU is also G20 member but represented by individual countries
+    ]
+  },
+  BRICS: {
+    description: "BRICS emerging economies",
+    regions: ["BR", "RU", "IN", "CN", "ZA"]
+  },
+
+  // Practical bundles for common use cases
+  COMMON: {
+    description: "Most commonly used countries worldwide (top 30 by usage)",
+    regions: [
+      "US",
+      "GB",
+      "DE",
+      "FR",
+      "IT",
+      "ES",
+      "NL",
+      "BE",
+      "AT",
+      "CH",
+      "CA",
+      "AU",
+      "JP",
+      "KR",
+      "CN",
+      "IN",
+      "BR",
+      "MX",
+      "RU",
+      "PL",
+      "SE",
+      "NO",
+      "DK",
+      "FI",
+      "IE",
+      "PT",
+      "GR",
+      "CZ",
+      "RO",
+      "HU"
+    ]
+  },
+  MINIMAL: {
+    description: "Minimal set for basic international support",
+    regions: ["US", "GB", "DE", "FR", "ES", "IT", "CA", "AU", "JP", "CN", "IN", "BR"]
+  }
+}
 
 interface PhoneNumberDesc {
   /** Pattern as string (will be converted to RegExp literal in output) */
@@ -452,6 +766,157 @@ function generateRegionModule(meta: RegionMetadata): string {
   return lines.join("\n")
 }
 
+/**
+ * Generate an inline bundle with all metadata embedded directly.
+ * This creates a single file that can be loaded with one HTTP request.
+ */
+function generateInlineBundle(
+  bundleName: string,
+  description: string,
+  regionCodes: string[],
+  allMetadata: Map<string, RegionMetadata>,
+  countryCodeToRegions: Record<number, string[]>
+): string {
+  const lines: string[] = [
+    "/**",
+    ` * ${bundleName} - ${description}`,
+    ` * Regions: ${regionCodes.join(", ")}`,
+    " *",
+    " * Auto-generated bundle with inline metadata.",
+    " * Do not edit manually.",
+    " */",
+    "",
+    'import type { MetadataBundle } from "../types.js"',
+    "",
+    "const bundle: MetadataBundle = {",
+    "  regions: {"
+  ]
+
+  // Add each region's metadata inline
+  for (const regionCode of regionCodes) {
+    const meta = allMetadata.get(regionCode)
+    if (!meta) {
+      console.warn(`  ⚠ Region ${regionCode} not found, skipping`)
+      continue
+    }
+
+    lines.push(`    ${regionCode}: ${serializeRegionMetadata(meta, "    ")},`)
+  }
+
+  // Remove trailing comma from last region
+  if (lines[lines.length - 1].endsWith(",")) {
+    lines[lines.length - 1] = lines[lines.length - 1].slice(0, -1)
+  }
+
+  lines.push("  },")
+
+  // Build countryCodeToRegions for this bundle only
+  const bundleCountryCodes: Record<number, string[]> = {}
+  for (const regionCode of regionCodes) {
+    const meta = allMetadata.get(regionCode)
+    if (meta) {
+      if (!bundleCountryCodes[meta.countryCode]) {
+        bundleCountryCodes[meta.countryCode] = []
+      }
+      bundleCountryCodes[meta.countryCode].push(regionCode)
+    }
+  }
+
+  lines.push("  countryCodeToRegions: {")
+  const sortedCodes = Object.keys(bundleCountryCodes)
+    .map(Number)
+    .sort((a, b) => a - b)
+  for (const code of sortedCodes) {
+    lines.push(`    ${code}: ${JSON.stringify(bundleCountryCodes[code])},`)
+  }
+  // Remove trailing comma
+  if (lines[lines.length - 1].endsWith(",")) {
+    lines[lines.length - 1] = lines[lines.length - 1].slice(0, -1)
+  }
+  lines.push("  }")
+
+  lines.push("}")
+  lines.push("")
+  lines.push("export default bundle")
+  lines.push("")
+
+  return lines.join("\n")
+}
+
+/**
+ * Serialize a complete RegionMetadata object for inline embedding
+ */
+function serializeRegionMetadata(meta: RegionMetadata, baseIndent: string): string {
+  const lines: string[] = ["{"]
+  const indent = baseIndent + "  "
+
+  // Simple properties
+  lines.push(`${indent}regionCode: ${JSON.stringify(meta.regionCode)},`)
+  lines.push(`${indent}countryCode: ${meta.countryCode},`)
+
+  if (meta.internationalPrefix) {
+    lines.push(`${indent}internationalPrefix: ${JSON.stringify(meta.internationalPrefix)},`)
+  }
+  if (meta.nationalPrefix) {
+    lines.push(`${indent}nationalPrefix: ${JSON.stringify(meta.nationalPrefix)},`)
+  }
+  if (meta.nationalPrefixForParsing) {
+    lines.push(
+      `${indent}nationalPrefixForParsing: ${JSON.stringify(meta.nationalPrefixForParsing)},`
+    )
+  }
+  if (meta.nationalPrefixTransformRule) {
+    lines.push(
+      `${indent}nationalPrefixTransformRule: ${JSON.stringify(meta.nationalPrefixTransformRule)},`
+    )
+  }
+  if (meta.preferredInternationalPrefix) {
+    lines.push(
+      `${indent}preferredInternationalPrefix: ${JSON.stringify(meta.preferredInternationalPrefix)},`
+    )
+  }
+  if (meta.mainCountryForCode) {
+    lines.push(`${indent}mainCountryForCode: true,`)
+  }
+  if (meta.leadingDigits) {
+    lines.push(`${indent}leadingDigits: ${JSON.stringify(meta.leadingDigits)},`)
+  }
+
+  // Phone number descriptions with RegExp patterns
+  if (meta.generalDesc) {
+    lines.push(`${indent}generalDesc: ${serializePhoneDesc(meta.generalDesc, indent)},`)
+  }
+  if (meta.fixedLine) {
+    lines.push(`${indent}fixedLine: ${serializePhoneDesc(meta.fixedLine, indent)},`)
+  }
+  if (meta.mobile) {
+    lines.push(`${indent}mobile: ${serializePhoneDesc(meta.mobile, indent)},`)
+  }
+  if (meta.voip) {
+    lines.push(`${indent}voip: ${serializePhoneDesc(meta.voip, indent)},`)
+  }
+
+  // Formats (patterns stay as strings)
+  if (meta.formats && meta.formats.length > 0) {
+    lines.push(`${indent}formats: [`)
+    for (const fmt of meta.formats) {
+      lines.push(`${indent}  ${serializeNumberFormat(fmt, indent + "  ")},`)
+    }
+    // Remove trailing comma
+    lines[lines.length - 1] = lines[lines.length - 1].slice(0, -1)
+    lines.push(`${indent}]`)
+  }
+
+  // Remove trailing comma from last property
+  const lastIdx = lines.length - 1
+  if (lines[lastIdx].endsWith(",")) {
+    lines[lastIdx] = lines[lastIdx].slice(0, -1)
+  }
+
+  lines.push(`${baseIndent}}`)
+  return lines.join("\n")
+}
+
 async function main(): Promise<void> {
   console.log("Converting libphonenumber XML metadata to TypeScript...\n")
 
@@ -539,7 +1004,80 @@ async function main(): Promise<void> {
   writeFileSync(join(dirname(OUTPUT_DIR), "countryCodeMap.ts"), mappingCode)
   console.log("  ✓ Generated countryCodeMap.ts\n")
 
-  console.log("Metadata conversion complete!")
+  // Generate inline bundles
+  console.log("Generating inline bundles...")
+
+  // Ensure bundles directory exists
+  if (!existsSync(BUNDLES_DIR)) {
+    mkdirSync(BUNDLES_DIR, { recursive: true })
+  }
+
+  // Collect all metadata for bundle generation
+  const allMetadata = new Map<string, RegionMetadata>()
+  for (const territory of territories) {
+    try {
+      const meta = parseTerritory(territory)
+      allMetadata.set(meta.regionCode, meta)
+    } catch {
+      // Skip territories that failed to parse
+    }
+  }
+
+  let bundlesGenerated = 0
+  const bundleSizes: { name: string; regions: number; size: number; gzipped: number }[] = []
+
+  for (const [bundleName, bundleDef] of Object.entries(BUNDLE_DEFINITIONS)) {
+    const bundleCode = generateInlineBundle(
+      bundleName,
+      bundleDef.description,
+      bundleDef.regions,
+      allMetadata,
+      countryCodeToRegions
+    )
+
+    const outputPath = join(BUNDLES_DIR, `${bundleName}.ts`)
+    writeFileSync(outputPath, bundleCode, "utf-8")
+    bundlesGenerated++
+
+    // Calculate sizes
+    const size = Buffer.byteLength(bundleCode, "utf-8")
+    // Rough gzip estimate (actual compression varies)
+    const gzipped = Math.round(size * 0.25) // ~75% compression typical
+
+    bundleSizes.push({
+      name: bundleName,
+      regions: bundleDef.regions.length,
+      size,
+      gzipped
+    })
+  }
+
+  console.log(`  ✓ Generated ${bundlesGenerated} bundles\n`)
+
+  // Print bundle size summary
+  console.log("Bundle sizes:")
+  console.log(
+    "  " +
+      "Bundle".padEnd(16) +
+      "Regions".padStart(8) +
+      "Size".padStart(10) +
+      "~Gzipped".padStart(10)
+  )
+  console.log("  " + "-".repeat(44))
+
+  for (const b of bundleSizes.sort((a, b) => b.size - a.size)) {
+    const sizeKB = (b.size / 1024).toFixed(1) + " KB"
+    const gzipKB = (b.gzipped / 1024).toFixed(1) + " KB"
+    console.log(
+      "  " +
+        b.name.padEnd(16) +
+        String(b.regions).padStart(8) +
+        sizeKB.padStart(10) +
+        gzipKB.padStart(10)
+    )
+  }
+
+  console.log("\nMetadata conversion complete!")
 }
 
 main().catch((error: unknown) => {

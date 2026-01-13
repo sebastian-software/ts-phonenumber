@@ -77,28 +77,62 @@ async function loadRegionMetadataInternal(regionCode: string): Promise<RegionMet
 
 /**
  * Loads a metadata bundle (e.g., for a country group like DACH or EU).
+ * Bundles contain pre-compiled metadata for multiple regions in a single file.
  *
  * @param bundleName - Name of the bundle (e.g., "DACH", "EU", "G7")
  * @returns The metadata bundle or undefined if not found
+ *
+ * @example
+ * ```typescript
+ * // Load DACH bundle (DE, AT, CH)
+ * await loadMetadataBundle("DACH")
+ *
+ * // Now all DACH regions are available for sync operations
+ * const parsed = parseSync("+49 170 1234567")
+ * ```
  */
 export async function loadMetadataBundle(bundleName: string): Promise<MetadataBundle | undefined> {
   try {
-    const module = (await import(`./groups/${bundleName}.js`)) as { default: MetadataBundle }
+    const module = (await import(`./bundles/${bundleName}.js`)) as { default: MetadataBundle }
 
     /* v8 ignore start - bundle loading success path, tests use registerMetadata */
-    // Populate caches
+    // Populate caches from bundle
     const bundle = module.default
-    for (const [code, metadata] of Object.entries(bundle.regions)) {
-      regionCache.set(code, metadata)
-    }
-    for (const [countryCode, regions] of Object.entries(bundle.countryCodeToRegions)) {
-      countryCodeCache.set(Number(countryCode), regions)
-    }
-
+    registerBundle(bundle)
     return bundle
     /* v8 ignore stop */
   } catch {
     return undefined
+  }
+}
+
+/**
+ * Synchronously registers all metadata from a bundle.
+ * Use this when you import a bundle directly.
+ *
+ * @param bundle - The metadata bundle to register
+ *
+ * @example
+ * ```typescript
+ * import DACH from "ts-phonenumber/metadata/bundles/DACH"
+ * import { registerBundle } from "ts-phonenumber"
+ *
+ * // Register all DACH countries at once
+ * registerBundle(DACH)
+ *
+ * // Now use sync API
+ * const parsed = parseSync("+49 170 1234567")
+ * ```
+ */
+export function registerBundle(bundle: MetadataBundle): void {
+  // Register all regions
+  for (const [code, metadata] of Object.entries(bundle.regions)) {
+    regionCache.set(code, metadata)
+  }
+
+  // Register country code mappings
+  for (const [countryCode, regions] of Object.entries(bundle.countryCodeToRegions)) {
+    countryCodeCache.set(Number(countryCode), regions)
   }
 }
 
