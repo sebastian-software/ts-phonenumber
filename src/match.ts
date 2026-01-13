@@ -6,6 +6,7 @@
 import type { ParsedPhoneNumber } from "./types.js"
 import { MatchType } from "./types.js"
 import { parse } from "./parse.js"
+import { alphaToDigit, FORMATTING_CHARS_PATTERN, PLUS_VARIANTS_PATTERN } from "./constants.js"
 
 /**
  * Internal representation of a parsed number for comparison.
@@ -207,7 +208,7 @@ async function parseForComparison(
   }
 
   // Replace full-width plus and other unicode variants
-  normalized = normalized.replace(/[\uFF0B]/g, "+")
+  normalized = normalized.replace(PLUS_VARIANTS_PATTERN, "+")
 
   // Handle ++ prefix
   if (normalized.startsWith("++")) {
@@ -215,40 +216,10 @@ async function parseForComparison(
   }
 
   // Convert alpha characters to digits (vanity numbers)
-  const alphaMap: Record<string, string> = {
-    A: "2",
-    B: "2",
-    C: "2",
-    D: "3",
-    E: "3",
-    F: "3",
-    G: "4",
-    H: "4",
-    I: "4",
-    J: "5",
-    K: "5",
-    L: "5",
-    M: "6",
-    N: "6",
-    O: "6",
-    P: "7",
-    Q: "7",
-    R: "7",
-    S: "7",
-    T: "8",
-    U: "8",
-    V: "8",
-    W: "9",
-    X: "9",
-    Y: "9",
-    Z: "9"
-  }
-  normalized = normalized.replace(/[A-Za-z]/g, (char) => {
-    return alphaMap[char.toUpperCase()] ?? char
-  })
+  normalized = normalized.replace(/[A-Za-z]/g, alphaToDigit)
 
   // Remove formatting characters
-  normalized = normalized.replace(/[\s\-.()/\u200B\u00A0\u00AD]/g, "")
+  normalized = normalized.replace(FORMATTING_CHARS_PATTERN, "")
 
   // Extract all digits
   const allDigits = normalized.replace(/[^\d]/g, "")

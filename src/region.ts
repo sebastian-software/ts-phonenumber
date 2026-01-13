@@ -6,6 +6,7 @@ import type { ParsedPhoneNumber, ParseOptions } from "./types.js"
 import { parse } from "./parse.js"
 import { loadRegionMetadata, getRegionsForCountryCode } from "./metadata/index.js"
 import type { RegionMetadata } from "./metadata/index.js"
+import { COUNTRY_CODE_TO_REGIONS } from "./constants.js"
 
 /**
  * Gets the region code (ISO 3166-1 alpha-2) for a phone number.
@@ -101,54 +102,17 @@ export async function getCountryCodeForRegion(regionCode: string): Promise<numbe
  * await getRegionsForCode(49)  // ["DE"]
  * ```
  */
-export async function getRegionsForCode(countryCode: number): Promise<string[] | undefined> {
+export async function getRegionsForCode(
+  countryCode: number
+): Promise<readonly string[] | undefined> {
   // First check cache
   const cached = getRegionsForCountryCode(countryCode)
   if (cached) {
     return cached
   }
 
-  // Try common country code mappings
-  const commonMappings: Record<number, string[]> = {
-    1: [
-      "US",
-      "CA",
-      "PR",
-      "VI",
-      "AS",
-      "GU",
-      "MP",
-      "AG",
-      "AI",
-      "BB",
-      "BM",
-      "BS",
-      "DM",
-      "DO",
-      "GD",
-      "JM",
-      "KN",
-      "KY",
-      "LC",
-      "MS",
-      "TC",
-      "TT",
-      "VC",
-      "VG"
-    ],
-    7: ["RU", "KZ"],
-    44: ["GB", "GG", "IM", "JE"],
-    61: ["AU", "CC", "CX"],
-    64: ["NZ"],
-    212: ["MA", "EH"],
-    262: ["RE", "YT"],
-    290: ["SH", "TA"],
-    358: ["FI", "AX"],
-    590: ["GP", "BL", "MF"],
-    599: ["CW", "BQ"]
-  }
-
-  const regions = commonMappings[countryCode]
+  // Use shared country code to regions mapping (frozen, immutable)
+  const regions = COUNTRY_CODE_TO_REGIONS[countryCode]
   if (regions) {
     // Load metadata for all regions to populate cache
     await Promise.all(regions.map((r) => loadRegionMetadata(r)))

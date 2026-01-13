@@ -11,48 +11,15 @@ import {
   getRegionMetadataSync
 } from "./metadata/index.js"
 import type { RegionMetadata } from "./metadata/index.js"
-
-/** Map of country calling codes to their digit lengths (1-3 digits) */
-const COUNTRY_CODE_LENGTHS = [1, 2, 3] as const
-
-/** Characters that should be stripped from phone number input */
-const UNWANTED_CHARS_PATTERN = /[\s\-.()/\u200B\u00A0\u00AD]/g
-
-/** Full-width plus sign and other unicode plus variants */
-const PLUS_VARIANTS = /[\uFF0B]/g
-
-/** Alpha-to-digit mapping for vanity numbers */
-const ALPHA_MAP: Record<string, string> = {
-  A: "2",
-  B: "2",
-  C: "2",
-  D: "3",
-  E: "3",
-  F: "3",
-  G: "4",
-  H: "4",
-  I: "4",
-  J: "5",
-  K: "5",
-  L: "5",
-  M: "6",
-  N: "6",
-  O: "6",
-  P: "7",
-  Q: "7",
-  R: "7",
-  S: "7",
-  T: "8",
-  U: "8",
-  V: "8",
-  W: "9",
-  X: "9",
-  Y: "9",
-  Z: "9"
-}
-
-/** Pattern for E.164 format: starts with + followed by digits */
-const E164_PATTERN = /^\+[1-9]\d{1,14}$/
+import {
+  alphaToDigit,
+  FORMATTING_CHARS_PATTERN,
+  PLUS_VARIANTS_PATTERN,
+  E164_PATTERN,
+  CLEAN_E164_PATTERN,
+  COUNTRY_CODE_LENGTHS,
+  COUNTRY_CODE_TO_REGIONS
+} from "./constants.js"
 
 /**
  * Parses a phone number string into a structured ParsedPhoneNumber object.
@@ -146,9 +113,6 @@ export function parseSync(input: string, options: ParseOptions = {}): ParsedPhon
   return parseNationalSync(normalized, defaultRegion, input)
 }
 
-/** Fast check if string contains only digits and optional leading + */
-const CLEAN_E164_PATTERN = /^\+[1-9][0-9]{6,14}$/
-
 /**
  * Normalizes phone number input by removing formatting characters.
  * Handles RFC3966 tel: URIs with phone-context parameter.
@@ -194,7 +158,7 @@ function normalizeInput(input: string): string {
   }
 
   // Replace full-width plus and other unicode variants with regular +
-  normalized = normalized.replace(PLUS_VARIANTS, "+")
+  normalized = normalized.replace(PLUS_VARIANTS_PATTERN, "+")
 
   // Handle ++ prefix (strip to single +)
   if (normalized.startsWith("++")) {
@@ -206,18 +170,16 @@ function normalizeInput(input: string): string {
   if (phoneContext && !normalized.startsWith("+")) {
     // phoneContext should be a global phone number prefix
     // Combine: phone-context + local-number
-    const contextDigits = phoneContext.replace(UNWANTED_CHARS_PATTERN, "")
-    const localDigits = normalized.replace(UNWANTED_CHARS_PATTERN, "")
+    const contextDigits = phoneContext.replace(FORMATTING_CHARS_PATTERN, "")
+    const localDigits = normalized.replace(FORMATTING_CHARS_PATTERN, "")
     normalized = contextDigits + localDigits
   }
 
   // Convert alpha characters to digits (vanity numbers)
-  normalized = normalized.replace(/[A-Za-z]/g, (char) => {
-    return ALPHA_MAP[char.toUpperCase()] ?? char
-  })
+  normalized = normalized.replace(/[A-Za-z]/g, alphaToDigit)
 
   // Remove common formatting characters
-  normalized = normalized.replace(UNWANTED_CHARS_PATTERN, "")
+  normalized = normalized.replace(FORMATTING_CHARS_PATTERN, "")
 
   // Handle extensions (strip for now)
   const extRegex = /^(.+?)(?:ext\.?|x|#)\d+$/i
@@ -498,60 +460,10 @@ function determineType(nationalNumber: string, metadata: RegionMetadata): PhoneN
 
 /**
  * Attempts to find region codes for a country calling code.
- * This is a simplified lookup - in production, this would be more comprehensive.
+ * Uses the shared COUNTRY_CODE_TO_REGIONS mapping.
  */
-async function findRegionsForCountryCode(countryCode: number): Promise<string[]> {
-  // Common country code to region mappings
-  const commonMappings: Record<number, string[]> = {
-    1: ["US", "CA"],
-    7: ["RU", "KZ"],
-    20: ["EG"],
-    27: ["ZA"],
-    30: ["GR"],
-    31: ["NL"],
-    32: ["BE"],
-    33: ["FR"],
-    34: ["ES"],
-    36: ["HU"],
-    39: ["IT"],
-    40: ["RO"],
-    41: ["CH"],
-    43: ["AT"],
-    44: ["GB"],
-    45: ["DK"],
-    46: ["SE"],
-    47: ["NO"],
-    48: ["PL"],
-    49: ["DE"],
-    51: ["PE"],
-    52: ["MX"],
-    53: ["CU"],
-    54: ["AR"],
-    55: ["BR"],
-    56: ["CL"],
-    57: ["CO"],
-    58: ["VE"],
-    60: ["MY"],
-    61: ["AU"],
-    62: ["ID"],
-    63: ["PH"],
-    64: ["NZ"],
-    65: ["SG"],
-    66: ["TH"],
-    81: ["JP"],
-    82: ["KR"],
-    84: ["VN"],
-    86: ["CN"],
-    90: ["TR"],
-    91: ["IN"],
-    92: ["PK"],
-    93: ["AF"],
-    94: ["LK"],
-    95: ["MM"],
-    98: ["IR"]
-  }
-
-  const regions = commonMappings[countryCode]
+async function findRegionsForCountryCode(countryCode: number): Promise<readonly string[]> {
+  const regions = COUNTRY_CODE_TO_REGIONS[countryCode]
   if (regions) {
     // Preload the regions
     for (const region of regions) {

@@ -4,7 +4,13 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest"
-import { format, formatE164Only, formatInternationalOnly, formatNationalOnly } from "../format.js"
+import {
+  format,
+  formatE164Only,
+  formatInternationalOnly,
+  formatNationalOnly,
+  formatSync
+} from "../format.js"
 import { getType, isMobile, isLandline, isVoIP } from "../getType.js"
 import {
   getRegionCodeForNumber,
@@ -18,10 +24,27 @@ import {
   getCachedRegionMetadata,
   preloadRegions,
   clearMetadataCache,
-  registerMetadata
+  registerMetadata,
+  getRegionMetadataSync
 } from "../metadata/loader.js"
 import { PhoneNumberFormat, PhoneNumberType } from "../types.js"
 import type { ParsedPhoneNumber } from "../types.js"
+import { parse, parseSync } from "../parse.js"
+import { validateSync, isValidNumberSync } from "../validate.js"
+import {
+  isLengthValid,
+  getMinLength,
+  getMaxLength,
+  bitmapToLengths,
+  lengthsToBitmap
+} from "../lengthBitmap.js"
+import {
+  ALPHA_MAP,
+  alphaToDigit,
+  COUNTRY_CODE_TO_REGIONS,
+  getMainRegionForCode,
+  getRegionsForCode as getRegionsForCodeFromConstants
+} from "../constants.js"
 
 // Import test metadata
 import DE from "../metadata/countries/DE.js"
@@ -453,6 +476,390 @@ describe("Coverage Tests", () => {
       const result = await getRegionsForCode(61)
       expect(result).toBeDefined()
       expect(result).toContain("AU")
+    })
+  })
+
+  describe("lengthBitmap.ts - all functions", () => {
+    it("isLengthValid should return true for valid lengths", () => {
+      const bitmap = 896 // bits 7,8,9 set (128 + 256 + 512)
+      expect(isLengthValid(bitmap, 7)).toBe(true)
+      expect(isLengthValid(bitmap, 8)).toBe(true)
+      expect(isLengthValid(bitmap, 9)).toBe(true)
+    })
+
+    it("isLengthValid should return false for invalid lengths", () => {
+      const bitmap = 896 // bits 7,8,9 set
+      expect(isLengthValid(bitmap, 6)).toBe(false)
+      expect(isLengthValid(bitmap, 10)).toBe(false)
+      expect(isLengthValid(bitmap, 0)).toBe(false)
+    })
+
+    it("isLengthValid should handle edge cases", () => {
+      expect(isLengthValid(0, 5)).toBe(false)
+      expect(isLengthValid(1, 0)).toBe(true) // bit 0 set
+      expect(isLengthValid(2, 1)).toBe(true) // bit 1 set
+    })
+
+    it("getMinLength should return correct minimum", () => {
+      expect(getMinLength(896)).toBe(7) // bits 7,8,9
+      expect(getMinLength(1)).toBe(0) // bit 0
+      expect(getMinLength(8)).toBe(3) // bit 3
+      expect(getMinLength(0b10000)).toBe(4) // bit 4
+    })
+
+    it("getMinLength should return 0 for empty bitmap", () => {
+      expect(getMinLength(0)).toBe(0)
+    })
+
+    it("getMaxLength should return correct maximum", () => {
+      expect(getMaxLength(896)).toBe(9) // bits 7,8,9
+      expect(getMaxLength(1)).toBe(0) // bit 0
+      expect(getMaxLength(8)).toBe(3) // bit 3
+      expect(getMaxLength(0b11110000)).toBe(7) // bits 4,5,6,7
+    })
+
+    it("getMaxLength should return 0 for empty bitmap", () => {
+      expect(getMaxLength(0)).toBe(0)
+    })
+
+    it("bitmapToLengths should convert bitmap to array", () => {
+      expect(bitmapToLengths(896)).toEqual([7, 8, 9])
+      expect(bitmapToLengths(1)).toEqual([0])
+      expect(bitmapToLengths(0b101)).toEqual([0, 2])
+      expect(bitmapToLengths(0)).toEqual([])
+    })
+
+    it("bitmapToLengths should handle non-contiguous bitmaps", () => {
+      // bits 5 and 9 set = 32 + 512 = 544
+      expect(bitmapToLengths(544)).toEqual([5, 9])
+    })
+
+    it("lengthsToBitmap should convert array to bitmap", () => {
+      expect(lengthsToBitmap([7, 8, 9])).toBe(896)
+      expect(lengthsToBitmap([0])).toBe(1)
+      expect(lengthsToBitmap([0, 2])).toBe(0b101)
+      expect(lengthsToBitmap([])).toBe(0)
+    })
+
+    it("lengthsToBitmap should handle non-contiguous arrays", () => {
+      expect(lengthsToBitmap([5, 9])).toBe(544)
+    })
+
+    it("round-trip: bitmapToLengths and lengthsToBitmap", () => {
+      const original = [3, 7, 10, 12]
+      const bitmap = lengthsToBitmap(original)
+      const result = bitmapToLengths(bitmap)
+      expect(result).toEqual(original)
+    })
+  })
+
+  describe("parseSync - sync parsing", () => {
+    it("should parse E.164 format synchronously", () => {
+      const result = parseSync("+491701234567")
+      expect(result.isValid).toBe(true)
+      expect(result.countryCode).toBe(49)
+      expect(result.nationalNumber).toBe("1701234567")
+      expect(result.type).toBe(PhoneNumberType.MOBILE)
+    })
+
+    it("should parse national format with region hint", () => {
+      const result = parseSync("01701234567", { defaultRegion: "DE" })
+      expect(result.isValid).toBe(true)
+      expect(result.countryCode).toBe(49)
+      expect(result.nationalNumber).toBe("1701234567")
+    })
+
+    it("should return invalid for empty input", () => {
+      const result = parseSync("")
+      expect(result.isValid).toBe(false)
+      expect(result.type).toBe(PhoneNumberType.INVALID)
+    })
+
+    it("should return invalid for national format without region", () => {
+      const result = parseSync("01701234567")
+      expect(result.isValid).toBe(false)
+    })
+
+    it("should handle tel: URI format synchronously", () => {
+      const result = parseSync("tel:+491701234567")
+      expect(result.isValid).toBe(true)
+      expect(result.countryCode).toBe(49)
+    })
+
+    it("should handle formatting characters", () => {
+      const result = parseSync("+49 170 123-4567")
+      expect(result.isValid).toBe(true)
+      expect(result.nationalNumber).toBe("1701234567")
+    })
+
+    it("should return invalid for invalid E164 format", () => {
+      const result = parseSync("+abc")
+      expect(result.isValid).toBe(false)
+    })
+
+    it("should handle US numbers", () => {
+      const result = parseSync("+16502530000")
+      expect(result.isValid).toBe(true)
+      expect(result.countryCode).toBe(1)
+    })
+
+    it("should return invalid for very short numbers", () => {
+      const result = parseSync("+1")
+      expect(result.isValid).toBe(false)
+    })
+
+    it("should parse landline number", () => {
+      const result = parseSync("+493012345678")
+      expect(result.isValid).toBe(true)
+      expect(result.type).toBe(PhoneNumberType.LANDLINE)
+    })
+
+    it("should handle national number without national prefix", () => {
+      const result = parseSync("1701234567", { defaultRegion: "DE" })
+      expect(result.isValid).toBe(true)
+      expect(result.nationalNumber).toBe("1701234567")
+    })
+
+    it("should return invalid for number not matching patterns", () => {
+      const result = parseSync("999", { defaultRegion: "DE" })
+      expect(result.isValid).toBe(false)
+      expect(result.type).toBe(PhoneNumberType.INVALID)
+    })
+  })
+
+  describe("validateSync - sync validation", () => {
+    it("should validate valid mobile number", () => {
+      const result = validateSync("+491701234567")
+      expect(result.isValid).toBe(true)
+      expect(result.type).toBe(PhoneNumberType.MOBILE)
+    })
+
+    it("should validate valid landline number", () => {
+      const result = validateSync("+493012345678")
+      expect(result.isValid).toBe(true)
+      expect(result.type).toBe(PhoneNumberType.LANDLINE)
+    })
+
+    it("should return invalid for bad input", () => {
+      const result = validateSync("not a number")
+      expect(result.isValid).toBe(false)
+      expect(result.type).toBe(PhoneNumberType.INVALID)
+    })
+
+    it("should return error for empty input", () => {
+      const result = validateSync("")
+      expect(result.isValid).toBe(false)
+      expect(result.error).toBe("Input must be a non-empty string")
+    })
+
+    it("should return error for non-string input", () => {
+      // @ts-expect-error Testing invalid input
+      const result = validateSync(null)
+      expect(result.isValid).toBe(false)
+      expect(result.error).toBe("Input must be a non-empty string")
+    })
+
+    it("should handle validation errors gracefully", () => {
+      // Test with a region that has no metadata loaded
+      clearMetadataCache()
+      // validateSync catches errors internally and returns invalid result
+      const result = validateSync("+491701234567")
+      expect(result.isValid).toBe(false)
+      expect(result.error).toBeDefined()
+    })
+  })
+
+  describe("isValidNumberSync - sync boolean validation", () => {
+    beforeEach(() => {
+      registerMetadata(DE)
+      registerMetadata(US)
+    })
+
+    it("should return true for valid number", () => {
+      const result = isValidNumberSync("+491701234567")
+      expect(result).toBe(true)
+    })
+
+    it("should return false for invalid number", () => {
+      const result = isValidNumberSync("invalid")
+      expect(result).toBe(false)
+    })
+  })
+
+  describe("formatSync - sync formatting", () => {
+    it("should format to E164 synchronously", () => {
+      const result = formatSync("+49 170 1234567", PhoneNumberFormat.E164)
+      expect(result).toBe("+491701234567")
+    })
+
+    it("should format to INTERNATIONAL synchronously", () => {
+      const result = formatSync("+491701234567", PhoneNumberFormat.INTERNATIONAL)
+      expect(result).toContain("+49")
+    })
+
+    it("should format to NATIONAL synchronously", () => {
+      const result = formatSync("+491701234567", PhoneNumberFormat.NATIONAL)
+      expect(result).toContain("0")
+    })
+
+    it("should format to RFC3966 synchronously", () => {
+      const result = formatSync("+491701234567", PhoneNumberFormat.RFC3966)
+      expect(result).toMatch(/^tel:\+49/)
+    })
+
+    it("should return empty string for invalid", () => {
+      const result = formatSync("invalid", PhoneNumberFormat.E164)
+      expect(result).toBe("")
+    })
+
+    it("should handle ParsedPhoneNumber input", () => {
+      const parsed: ParsedPhoneNumber = {
+        countryCode: 49,
+        nationalNumber: "1701234567",
+        regionCode: "DE",
+        type: PhoneNumberType.MOBILE,
+        isValid: true,
+        rawInput: "+491701234567"
+      }
+      const result = formatSync(parsed, PhoneNumberFormat.E164)
+      expect(result).toBe("+491701234567")
+    })
+  })
+
+  describe("parseSync - type detection via sync parsing", () => {
+    it("should detect MOBILE type synchronously", () => {
+      const result = parseSync("+491701234567")
+      expect(result.type).toBe(PhoneNumberType.MOBILE)
+    })
+
+    it("should detect LANDLINE type synchronously", () => {
+      const result = parseSync("+493012345678")
+      expect(result.type).toBe(PhoneNumberType.LANDLINE)
+    })
+
+    it("should return INVALID for invalid input", () => {
+      const result = parseSync("invalid")
+      expect(result.type).toBe(PhoneNumberType.INVALID)
+    })
+
+    it("should return INVALID for empty input", () => {
+      const result = parseSync("")
+      expect(result.type).toBe(PhoneNumberType.INVALID)
+    })
+  })
+
+  describe("parse.ts - edge cases for async parsing", () => {
+    it("should handle RFC3966 phone-context with global prefix", async () => {
+      const result = await parse("tel:1234567;phone-context=+49")
+      expect(result.countryCode).toBe(49)
+    })
+
+    it("should handle RFC3966 phone-context with domain (national format needed)", async () => {
+      // Domain context is ignored, but with defaultRegion it may still parse
+      const result = await parse("tel:1701234567;phone-context=example.com", {
+        defaultRegion: "DE"
+      })
+      // National number is parsed with default region
+      expect(result.regionCode).toBe("DE")
+    })
+
+    it("should handle full-width plus sign", async () => {
+      const result = await parse("\uFF0B491701234567")
+      expect(result.isValid).toBe(true)
+      expect(result.countryCode).toBe(49)
+    })
+
+    it("should handle double plus prefix", async () => {
+      const result = await parse("++491701234567")
+      expect(result.isValid).toBe(true)
+      expect(result.countryCode).toBe(49)
+    })
+
+    it("should convert alpha characters to digits (vanity numbers)", async () => {
+      // Test basic alpha conversion
+      const result = await parse("+491701234ABC")
+      // A=2, B=2, C=2 so ABC -> 222
+      expect(result.nationalNumber).toContain("222")
+    })
+
+    it("should handle tel: with uppercase", async () => {
+      const result = await parse("TEL:+491701234567")
+      expect(result.isValid).toBe(true)
+      expect(result.countryCode).toBe(49)
+    })
+
+    it("should return invalid for non-string input", async () => {
+      // @ts-expect-error Testing invalid input
+      const result = await parse(null)
+      expect(result.isValid).toBe(false)
+    })
+
+    it("should strip URI parameters", async () => {
+      const result = await parse("tel:+491701234567;isub=12345")
+      expect(result.isValid).toBe(true)
+      expect(result.nationalNumber).toBe("1701234567")
+    })
+
+    it("should handle Unicode NBSP and zero-width space", async () => {
+      // \u00A0 = non-breaking space, \u200B = zero-width space
+      const result = await parse("+49\u00A0170\u200B1234567")
+      expect(result.isValid).toBe(true)
+      expect(result.nationalNumber).toBe("1701234567")
+    })
+  })
+
+  describe("loader.ts - getRegionMetadataSync", () => {
+    it("should return metadata for loaded region", () => {
+      const metadata = getRegionMetadataSync("DE")
+      expect(metadata).toBeDefined()
+      expect(metadata.regionCode).toBe("DE")
+    })
+
+    it("should throw for unloaded region", () => {
+      clearMetadataCache()
+      expect(() => getRegionMetadataSync("XX")).toThrow()
+    })
+  })
+
+  describe("constants.ts - shared data structures", () => {
+    it("ALPHA_MAP should have all letters", () => {
+      expect(ALPHA_MAP["A"]).toBe("2")
+      expect(ALPHA_MAP["Z"]).toBe("9")
+      expect(Object.keys(ALPHA_MAP)).toHaveLength(26)
+    })
+
+    it("alphaToDigit should convert letters", () => {
+      expect(alphaToDigit("A")).toBe("2")
+      expect(alphaToDigit("a")).toBe("2")
+      expect(alphaToDigit("Z")).toBe("9")
+      expect(alphaToDigit("5")).toBe("5")
+      expect(alphaToDigit("+")).toBe("+")
+    })
+
+    it("COUNTRY_CODE_TO_REGIONS should have common codes", () => {
+      expect(COUNTRY_CODE_TO_REGIONS[1]).toContain("US")
+      expect(COUNTRY_CODE_TO_REGIONS[49]).toContain("DE")
+      expect(COUNTRY_CODE_TO_REGIONS[44]).toContain("GB")
+    })
+
+    it("getMainRegionForCode should return first region", () => {
+      expect(getMainRegionForCode(1)).toBe("US")
+      expect(getMainRegionForCode(49)).toBe("DE")
+      expect(getMainRegionForCode(44)).toBe("GB")
+    })
+
+    it("getMainRegionForCode should return undefined for unknown", () => {
+      expect(getMainRegionForCode(999)).toBeUndefined()
+    })
+
+    it("getRegionsForCodeFromConstants should return regions", () => {
+      expect(getRegionsForCodeFromConstants(1)).toContain("US")
+      expect(getRegionsForCodeFromConstants(1)).toContain("CA")
+      expect(getRegionsForCodeFromConstants(44)).toContain("GB")
+    })
+
+    it("getRegionsForCodeFromConstants should return undefined for unknown", () => {
+      expect(getRegionsForCodeFromConstants(999)).toBeUndefined()
     })
   })
 })

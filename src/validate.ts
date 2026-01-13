@@ -7,6 +7,13 @@ import { PhoneNumberType } from "./types.js"
 import { parse, parseSync } from "./parse.js"
 import { loadRegionMetadata, getRegionsForCountryCode } from "./metadata/index.js"
 import { getMinLength, getMaxLength } from "./lengthBitmap.js"
+import {
+  alphaToDigit,
+  FORMATTING_CHARS_PATTERN,
+  PLUS_VARIANTS_PATTERN,
+  COUNTRY_CODE_LENGTHS,
+  getMainRegionForCode
+} from "./constants.js"
 
 /**
  * Validates a phone number and returns detailed validation results.
@@ -274,41 +281,13 @@ async function extractNumberComponents(
   }
 
   // Replace unicode plus variants
-  normalized = normalized.replace(/[\uFF0B]/g, "+")
+  normalized = normalized.replace(PLUS_VARIANTS_PATTERN, "+")
 
   // Remove formatting
-  normalized = normalized.replace(/[\s\-.()/\u200B\u00A0\u00AD]/g, "")
+  normalized = normalized.replace(FORMATTING_CHARS_PATTERN, "")
 
   // Convert alpha to digits
-  const alphaMap: Record<string, string> = {
-    A: "2",
-    B: "2",
-    C: "2",
-    D: "3",
-    E: "3",
-    F: "3",
-    G: "4",
-    H: "4",
-    I: "4",
-    J: "5",
-    K: "5",
-    L: "5",
-    M: "6",
-    N: "6",
-    O: "6",
-    P: "7",
-    Q: "7",
-    R: "7",
-    S: "7",
-    T: "8",
-    U: "8",
-    V: "8",
-    W: "9",
-    X: "9",
-    Y: "9",
-    Z: "9"
-  }
-  normalized = normalized.replace(/[A-Za-z]/g, (c) => alphaMap[c.toUpperCase()] ?? c)
+  normalized = normalized.replace(/[A-Za-z]/g, alphaToDigit)
 
   // Extract digits
   const digits = normalized.replace(/[^\d+]/g, "")
@@ -321,7 +300,7 @@ async function extractNumberComponents(
   if (digits.startsWith("+")) {
     const withoutPlus = digits.slice(1)
     // Try 1, 2, 3 digit country codes
-    for (const len of [1, 2, 3]) {
+    for (const len of COUNTRY_CODE_LENGTHS) {
       if (withoutPlus.length < len + 1) continue
       const potentialCC = parseInt(withoutPlus.slice(0, len), 10)
       const regions = getRegionsForCountryCode(potentialCC)
@@ -394,59 +373,10 @@ async function getPossibleLengthsBitmap(countryCode: number): Promise<number | n
 }
 
 /**
- * Tries to load metadata for a country code by trying common regions.
+ * Tries to load metadata for a country code by trying the main region.
  */
 async function tryLoadForCountryCode(countryCode: number) {
-  const commonMappings: Record<number, string> = {
-    1: "US",
-    7: "RU",
-    20: "EG",
-    27: "ZA",
-    30: "GR",
-    31: "NL",
-    32: "BE",
-    33: "FR",
-    34: "ES",
-    36: "HU",
-    39: "IT",
-    40: "RO",
-    41: "CH",
-    43: "AT",
-    44: "GB",
-    45: "DK",
-    46: "SE",
-    47: "NO",
-    48: "PL",
-    49: "DE",
-    51: "PE",
-    52: "MX",
-    53: "CU",
-    54: "AR",
-    55: "BR",
-    56: "CL",
-    57: "CO",
-    58: "VE",
-    60: "MY",
-    61: "AU",
-    62: "ID",
-    63: "PH",
-    64: "NZ",
-    65: "SG",
-    66: "TH",
-    81: "JP",
-    82: "KR",
-    84: "VN",
-    86: "CN",
-    90: "TR",
-    91: "IN",
-    92: "PK",
-    93: "AF",
-    94: "LK",
-    95: "MM",
-    98: "IR"
-  }
-
-  const region = commonMappings[countryCode]
+  const region = getMainRegionForCode(countryCode)
   /* v8 ignore next 4 - common mappings cover most use cases */
   if (region) {
     return loadRegionMetadata(region)
