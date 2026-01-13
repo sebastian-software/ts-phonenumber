@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ts-phonenumber - The Fastest Phone Number Library</title>
+    <meta
+      name="description"
+      content="High-performance TypeScript phone number library. Parse, validate, and format phone numbers with blazing speed and tiny bundles."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --color-bg: #0a0a0a;
+        --color-surface: #141414;
+        --color-border: #262626;
+        --color-text: #fafafa;
+        --color-text-muted: #a1a1aa;
+        --color-primary: #3b82f6;
+        --color-primary-hover: #60a5fa;
+        --color-success: #22c55e;
+        --color-code-bg: #1e1e1e;
+        --font-sans: "Inter", system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background: var(--color-bg);
+        color: var(--color-text);
+        line-height: 1.6;
+      }
+
+      a {
+        color: var(--color-primary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      a:hover {
+        color: var(--color-primary-hover);
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header */
+      header {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--color-border);
+        position: sticky;
+        top: 0;
+        background: var(--color-bg);
+        z-index: 100;
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--color-text);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+
+      .nav-links a {
+        color: var(--color-text-muted);
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .nav-links a:hover {
+        color: var(--color-text);
+      }
+
+      /* Hero */
+      .hero {
+        padding: 6rem 0;
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.02em;
+      }
+
+      .hero h1 span {
+        background: linear-gradient(135deg, var(--color-primary), #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero p {
+        font-size: 1.25rem;
+        color: var(--color-text-muted);
+        max-width: 600px;
+        margin: 0 auto 2rem;
+      }
+
+      .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary {
+        background: var(--color-primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--color-primary-hover);
+        color: white;
+      }
+
+      .btn-secondary {
+        background: var(--color-surface);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+      }
+
+      .btn-secondary:hover {
+        background: var(--color-border);
+        color: var(--color-text);
+      }
+
+      /* Badges */
+      .badges {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+      }
+
+      /* Features */
+      .features {
+        padding: 5rem 0;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .features h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .feature-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+
+      .feature-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .feature-card p {
+        color: var(--color-text-muted);
+        font-size: 0.95rem;
+      }
+
+      /* Code Example */
+      .code-section {
+        padding: 5rem 0;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .code-section h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .code-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .code-tab {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        font-family: var(--font-sans);
+        font-size: 0.9rem;
+        transition: all 0.2s;
+      }
+
+      .code-tab:hover,
+      .code-tab.active {
+        background: var(--color-surface);
+        color: var(--color-text);
+        border-color: var(--color-primary);
+      }
+
+      .code-block {
+        background: var(--color-code-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .code-header {
+        background: var(--color-surface);
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--color-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .code-header span {
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+      }
+
+      pre {
+        padding: 1.5rem;
+        overflow-x: auto;
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        line-height: 1.7;
+      }
+
+      code {
+        font-family: var(--font-mono);
+      }
+
+      .code-content {
+        display: none;
+      }
+
+      .code-content.active {
+        display: block;
+      }
+
+      /* Syntax highlighting */
+      .keyword {
+        color: #c678dd;
+      }
+      .string {
+        color: #98c379;
+      }
+      .comment {
+        color: #5c6370;
+      }
+      .function {
+        color: #61afef;
+      }
+      .variable {
+        color: #e5c07b;
+      }
+      .number {
+        color: #d19a66;
+      }
+
+      /* Benchmarks */
+      .benchmarks {
+        padding: 5rem 0;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .benchmarks h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .benchmarks > p {
+        text-align: center;
+        color: var(--color-text-muted);
+        margin-bottom: 3rem;
+      }
+
+      .benchmark-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--color-surface);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .benchmark-table th,
+      .benchmark-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .benchmark-table th {
+        background: var(--color-bg);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-text-muted);
+      }
+
+      .benchmark-table td:first-child {
+        font-weight: 500;
+      }
+
+      .benchmark-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .speed {
+        color: var(--color-success);
+        font-weight: 600;
+        font-family: var(--font-mono);
+      }
+
+      .faster {
+        color: var(--color-primary);
+        font-size: 0.85rem;
+      }
+
+      /* Footer */
+      footer {
+        padding: 3rem 0;
+        border-top: 1px solid var(--color-border);
+        text-align: center;
+        color: var(--color-text-muted);
+      }
+
+      footer p {
+        font-size: 0.9rem;
+      }
+
+      footer a {
+        color: var(--color-text-muted);
+      }
+
+      footer a:hover {
+        color: var(--color-text);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero p {
+          font-size: 1.1rem;
+        }
+
+        .nav-links {
+          gap: 1rem;
+        }
+
+        .benchmark-table {
+          font-size: 0.85rem;
+        }
+
+        .benchmark-table th,
+        .benchmark-table td {
+          padding: 0.75rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav class="container">
+        <span class="logo">ts-phonenumber</span>
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#usage">Usage</a></li>
+          <li><a href="#benchmarks">Benchmarks</a></li>
+          <li><a href="./api/">API Docs</a></li>
+          <li>
+            <a href="https://github.com/sebastian-software/ts-phonenumber"
+              >GitHub</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <h1>The <span>Fastest</span> Phone Number Library</h1>
+          <p>
+            Parse, validate, and format phone numbers with blazing speed and
+            tiny bundles. TypeScript-first, up to 11x faster than alternatives.
+          </p>
+          <div class="hero-buttons">
+            <a href="#usage" class="btn btn-primary">Get Started</a>
+            <a href="./api/" class="btn btn-secondary">API Documentation</a>
+          </div>
+          <div class="badges">
+            <a href="https://www.npmjs.com/package/ts-phonenumber">
+              <img
+                src="https://img.shields.io/npm/v/ts-phonenumber.svg"
+                alt="npm version"
+              />
+            </a>
+            <a href="https://bundlephobia.com/package/ts-phonenumber">
+              <img
+                src="https://img.shields.io/bundlephobia/minzip/ts-phonenumber"
+                alt="bundle size"
+              />
+            </a>
+            <img
+              src="https://img.shields.io/badge/TypeScript-5.0-blue.svg"
+              alt="TypeScript"
+            />
+            <img
+              src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"
+              alt="License"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="features" id="features">
+        <div class="container">
+          <h2>Why ts-phonenumber?</h2>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3>Blazing Fast</h3>
+              <p>
+                Pre-compiled RegExp patterns and bitmap-based validation.
+                Up to 11x faster than google-libphonenumber.
+              </p>
+            </div>
+            <div class="feature-card">
+              <h3>Tiny Bundles</h3>
+              <p>
+                ~5KB core + on-demand metadata loading. Only load the countries
+                you need via dynamic imports.
+              </p>
+            </div>
+            <div class="feature-card">
+              <h3>TypeScript-First</h3>
+              <p>
+                Built from the ground up in TypeScript with full type safety and
+                comprehensive type definitions.
+              </p>
+            </div>
+            <div class="feature-card">
+              <h3>Dual API</h3>
+              <p>
+                Async API for lazy loading in web apps. Sync API for maximum
+                performance in servers and CLIs.
+              </p>
+            </div>
+            <div class="feature-card">
+              <h3>Modern Runtimes</h3>
+              <p>
+                Supports Node.js 20+, Bun, and modern browsers. ESM and
+                CommonJS builds included.
+              </p>
+            </div>
+            <div class="feature-card">
+              <h3>CLI Included</h3>
+              <p>
+                Command-line tool for quick validation, parsing, and formatting.
+                Great for scripting and debugging.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="code-section" id="usage">
+        <div class="container">
+          <h2>Quick Start</h2>
+          <div class="code-tabs">
+            <button class="code-tab active" data-tab="async">Async API</button>
+            <button class="code-tab" data-tab="sync">Sync API</button>
+            <button class="code-tab" data-tab="cli">CLI</button>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span>TypeScript</span>
+            </div>
+            <div class="code-content active" id="async">
+              <pre><code><span class="keyword">import</span> { parse, validate, format, PhoneNumberFormat } <span class="keyword">from</span> <span class="string">"ts-phonenumber"</span>
+
+<span class="comment">// Parse a phone number (metadata loaded automatically)</span>
+<span class="keyword">const</span> parsed = <span class="keyword">await</span> <span class="function">parse</span>(<span class="string">"+491701234567"</span>)
+console.<span class="function">log</span>(parsed.regionCode)  <span class="comment">// "DE"</span>
+console.<span class="function">log</span>(parsed.type)        <span class="comment">// "MOBILE"</span>
+
+<span class="comment">// Validate a phone number</span>
+<span class="keyword">const</span> result = <span class="keyword">await</span> <span class="function">validate</span>(<span class="string">"+491701234567"</span>)
+console.<span class="function">log</span>(result.isValid)     <span class="comment">// true</span>
+
+<span class="comment">// Format a phone number</span>
+<span class="keyword">const</span> intl = <span class="keyword">await</span> <span class="function">format</span>(<span class="string">"+491701234567"</span>, PhoneNumberFormat.INTERNATIONAL)
+console.<span class="function">log</span>(intl)  <span class="comment">// "+49 170 1234567"</span></code></pre>
+            </div>
+            <div class="code-content" id="sync">
+              <pre><code><span class="keyword">import</span> { parseSync, validateSync, formatSync, registerMetadata, PhoneNumberFormat } <span class="keyword">from</span> <span class="string">"ts-phonenumber"</span>
+<span class="keyword">import</span> DE <span class="keyword">from</span> <span class="string">"ts-phonenumber/metadata/countries/DE"</span>
+
+<span class="comment">// Pre-load metadata once at startup</span>
+<span class="function">registerMetadata</span>(DE)
+
+<span class="comment">// Now use sync functions - no async overhead!</span>
+<span class="keyword">const</span> parsed = <span class="function">parseSync</span>(<span class="string">"+491701234567"</span>)
+console.<span class="function">log</span>(parsed.regionCode)  <span class="comment">// "DE"</span>
+console.<span class="function">log</span>(parsed.type)        <span class="comment">// "MOBILE"</span>
+
+<span class="keyword">const</span> isValid = <span class="function">validateSync</span>(<span class="string">"+491701234567"</span>)
+console.<span class="function">log</span>(isValid.isValid)    <span class="comment">// true</span>
+
+<span class="keyword">const</span> formatted = <span class="function">formatSync</span>(parsed, PhoneNumberFormat.INTERNATIONAL)
+console.<span class="function">log</span>(formatted)  <span class="comment">// "+49 170 1234567"</span></code></pre>
+            </div>
+            <div class="code-content" id="cli">
+              <pre><code><span class="comment"># Install globally or use npx</span>
+npm install -g ts-phonenumber
+
+<span class="comment"># Validate a phone number</span>
+ts-phonenumber validate <span class="string">"+491701234567"</span>
+<span class="comment"># Output: Valid MOBILE number (DE)</span>
+
+<span class="comment"># Parse and show details</span>
+ts-phonenumber parse <span class="string">"+491701234567"</span> --json
+
+<span class="comment"># Format a number</span>
+ts-phonenumber format <span class="string">"+491701234567"</span> --format international
+<span class="comment"># Output: +49 170 1234567</span>
+
+<span class="comment"># Get number type</span>
+ts-phonenumber type <span class="string">"+491701234567"</span>
+<span class="comment"># Output: MOBILE</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="benchmarks" id="benchmarks">
+        <div class="container">
+          <h2>Performance Benchmarks</h2>
+          <p>ts-phonenumber wins all 7 benchmarks against popular alternatives</p>
+          <table class="benchmark-table">
+            <thead>
+              <tr>
+                <th>Benchmark</th>
+                <th>ts-phonenumber</th>
+                <th>vs libphonenumber-js</th>
+                <th>vs google-libphonenumber</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Parse E.164</td>
+                <td><span class="speed">1.56M/s</span></td>
+                <td><span class="faster">3.3x faster</span></td>
+                <td><span class="faster">4.9x faster</span></td>
+              </tr>
+              <tr>
+                <td>Parse national</td>
+                <td><span class="speed">2.14M/s</span></td>
+                <td><span class="faster">6.4x faster</span></td>
+                <td><span class="faster">9.9x faster</span></td>
+              </tr>
+              <tr>
+                <td>Validate</td>
+                <td><span class="speed">1.53M/s</span></td>
+                <td><span class="faster">5.4x faster</span></td>
+                <td><span class="faster">6.2x faster</span></td>
+              </tr>
+              <tr>
+                <td>Format E.164</td>
+                <td><span class="speed">32.4M/s</span></td>
+                <td><span class="faster">4.3x faster</span></td>
+                <td><span class="faster">1.5x faster</span></td>
+              </tr>
+              <tr>
+                <td>Format International</td>
+                <td><span class="speed">2.30M/s</span></td>
+                <td><span class="faster">7.3x faster</span></td>
+                <td><span class="faster">6.1x faster</span></td>
+              </tr>
+              <tr>
+                <td>Full pipeline</td>
+                <td><span class="speed">1.51M/s</span></td>
+                <td><span class="faster">4.8x faster</span></td>
+                <td><span class="faster">11.2x faster</span></td>
+              </tr>
+              <tr>
+                <td>Batch (10 nums)</td>
+                <td><span class="speed">160K/s</span></td>
+                <td><span class="faster">7.4x faster</span></td>
+                <td><span class="faster">5.7x faster</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>
+          Made by
+          <a href="https://www.sebastian-software.de">Sebastian Software GmbH</a>
+          &middot; Licensed under Apache-2.0 &middot;
+          <a href="https://github.com/sebastian-software/ts-phonenumber"
+            >View on GitHub</a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      document.querySelectorAll(".code-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document
+            .querySelectorAll(".code-tab")
+            .forEach((t) => t.classList.remove("active"));
+          document
+            .querySelectorAll(".code-content")
+            .forEach((c) => c.classList.remove("active"));
+          tab.classList.add("active");
+          document.getElementById(tab.dataset.tab).classList.add("active");
+        });
+      });
+    </script>
+  </body>
+</html>

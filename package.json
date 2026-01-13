@@ -13,7 +13,7 @@
     "parsing",
     "typescript"
   ],
-  "homepage": "https://github.com/sebastian-software/ts-phonenumber#readme",
+  "homepage": "https://sebastian-software.github.io/ts-phonenumber/",
   "bugs": {
     "url": "https://github.com/sebastian-software/ts-phonenumber/issues"
   },
@@ -82,7 +82,8 @@
     "upstream:convert-metadata": "tsx scripts/convert-metadata.ts",
     "upstream:convert-tests": "tsx scripts/convert-tests.ts",
     "upstream:update": "tsx scripts/update-upstream.ts",
-    "benchmark": "tsx scripts/benchmark.ts"
+    "benchmark": "tsx scripts/benchmark.ts",
+    "docs": "typedoc"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -102,6 +103,7 @@
     "tinybench": "^6.0.0",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
+    "typedoc": "^0.28.16",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.0",
     "vitest": "^4.0.17"

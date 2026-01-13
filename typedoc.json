@@ -1,0 +1,23 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src/index.ts"],
+  "out": "./site/api",
+  "name": "ts-phonenumber",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "includeVersion": true,
+  "navigationLinks": {
+    "Home": "/ts-phonenumber/",
+    "GitHub": "https://github.com/sebastian-software/ts-phonenumber"
+  },
+  "visibilityFilters": {
+    "protected": false,
+    "inherited": true,
+    "@internal": false
+  },
+  "searchInComments": true,
+  "searchInDocuments": true,
+  "cleanOutputDir": true
+}

@@ -25,6 +25,7 @@ export default tseslint.config(
       "coverage/**",
       "scripts/**",
       "upstream/**",
+      "site/**",
       "*.config.js",
       "*.config.ts"
     ]
