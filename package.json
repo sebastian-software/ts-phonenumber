@@ -45,14 +45,14 @@
         "default": "./dist/metadata/countries/*.cjs"
       }
     },
-    "./metadata/groups/*": {
+    "./metadata/bundles/*": {
       "import": {
-        "types": "./dist/metadata/groups/*.d.ts",
-        "default": "./dist/metadata/groups/*.js"
+        "types": "./dist/metadata/bundles/*.d.ts",
+        "default": "./dist/metadata/bundles/*.js"
       },
       "require": {
-        "types": "./dist/metadata/groups/*.d.cts",
-        "default": "./dist/metadata/groups/*.cjs"
+        "types": "./dist/metadata/bundles/*.d.cts",
+        "default": "./dist/metadata/bundles/*.cjs"
       }
     }
   },
