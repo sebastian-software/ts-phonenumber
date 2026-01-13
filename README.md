@@ -7,41 +7,9 @@
 
 **The fastest phone number library for JavaScript/TypeScript.** Parse, validate, and format phone numbers with blazing speed and tiny bundles.
 
-## Performance
-
-**Up to 11x faster** than alternatives — ts-phonenumber wins all 7 benchmarks against the most popular phone number libraries.
-
-| Benchmark       | ts-phonenumber | vs [libphonenumber-js] | vs [google-libphonenumber] | vs [awesome-phonenumber] |
-| --------------- | -------------: | :--------------------: | :------------------------: | :----------------------: |
-| Parse E.164     |    **1.56M**/s |      3.3x faster       |        4.9x faster         |        25x faster        |
-| Parse national  |    **2.14M**/s |      6.4x faster       |        9.9x faster         |        37x faster        |
-| Validate        |    **1.53M**/s |      5.4x faster       |        6.2x faster         |            —             |
-| Format E.164    |    **32.4M**/s |      4.3x faster       |        1.5x faster         |       1.9x faster        |
-| Format Intl     |    **2.30M**/s |      7.3x faster       |        6.1x faster         |       6.2x faster        |
-| Full pipeline   |    **1.51M**/s |      4.8x faster       |        11.2x faster        |            —             |
-| Batch (10 nums) |     **160K**/s |      7.4x faster       |        5.7x faster         |        38x faster        |
-
-<sub>Benchmarks on Apple M1 Ultra, Node.js v24. Sync API with pre-loaded metadata. Run `pnpm benchmark` to reproduce.</sub>
-
-[google-libphonenumber]: https://www.npmjs.com/package/google-libphonenumber
-[libphonenumber-js]: https://www.npmjs.com/package/libphonenumber-js
-[awesome-phonenumber]: https://www.npmjs.com/package/awesome-phonenumber
-
-### Why so fast?
-
-**Hand-optimized data structures from official Google data:**
-
-- **Pre-compiled RegExp literals** — All patterns (validation, formatting, leading digits) are compiled at build time, not runtime. Zero `new RegExp()` calls during validation.
-- **Bitmap-based length validation** — Possible lengths stored as bit flags for O(1) membership checks instead of array iteration.
-- **Combined leading digit patterns** — Multiple patterns merged into single RegExp with `|` alternation, eliminating array traversal.
-- **Zero-overhead sync API** — When metadata is pre-loaded, no async overhead at all.
-- **Lean metadata** — Only LANDLINE, MOBILE, VOIP patterns included. No toll-free, premium, or special service bloat.
-
-All metadata is automatically generated from [Google's official PhoneNumberMetadata.xml](https://github.com/google/libphonenumber/blob/master/resources/PhoneNumberMetadata.xml) — the same source used by libphonenumber — ensuring correctness while maximizing performance.
-
 ## Features
 
-- **Blazing fast** — Fastest phone number library (see benchmarks above)
+- **Blazing fast** — Up to 11x faster than alternatives ([see benchmarks](#benchmarks))
 - **TypeScript-first** — Full type safety with comprehensive type definitions
 - **Dual API** — Async for lazy loading, sync for maximum performance
 - **Tiny bundles** — ~5KB core + on-demand metadata via `import()`
@@ -309,6 +277,38 @@ import DACH from "ts-phonenumber/metadata/groups/DACH" // DE, AT, CH
 - `preloadRegions(regionCodes)` - Preload multiple regions (async)
 - `isMetadataLoaded(regionCode)` - Check if metadata is loaded
 - `clearMetadataCache()` - Clear the metadata cache
+
+## Benchmarks
+
+**Up to 11x faster** than alternatives — ts-phonenumber wins all 7 benchmarks against the most popular phone number libraries.
+
+| Benchmark       | ts-phonenumber | vs [libphonenumber-js] | vs [google-libphonenumber] | vs [awesome-phonenumber] |
+| --------------- | -------------: | :--------------------: | :------------------------: | :----------------------: |
+| Parse E.164     |    **1.56M**/s |      3.3x faster       |        4.9x faster         |        25x faster        |
+| Parse national  |    **2.14M**/s |      6.4x faster       |        9.9x faster         |        37x faster        |
+| Validate        |    **1.53M**/s |      5.4x faster       |        6.2x faster         |            —             |
+| Format E.164    |    **32.4M**/s |      4.3x faster       |        1.5x faster         |       1.9x faster        |
+| Format Intl     |    **2.30M**/s |      7.3x faster       |        6.1x faster         |       6.2x faster        |
+| Full pipeline   |    **1.51M**/s |      4.8x faster       |        11.2x faster        |            —             |
+| Batch (10 nums) |     **160K**/s |      7.4x faster       |        5.7x faster         |        38x faster        |
+
+<sub>Benchmarks on Apple M1 Ultra, Node.js v24. Sync API with pre-loaded metadata. Run `pnpm benchmark` to reproduce.</sub>
+
+[google-libphonenumber]: https://www.npmjs.com/package/google-libphonenumber
+[libphonenumber-js]: https://www.npmjs.com/package/libphonenumber-js
+[awesome-phonenumber]: https://www.npmjs.com/package/awesome-phonenumber
+
+### Why so fast?
+
+**Hand-optimized data structures from official Google data:**
+
+- **Pre-compiled RegExp literals** — All patterns (validation, formatting, leading digits) are compiled at build time, not runtime. Zero `new RegExp()` calls during validation.
+- **Bitmap-based length validation** — Possible lengths stored as bit flags for O(1) membership checks instead of array iteration.
+- **Combined leading digit patterns** — Multiple patterns merged into single RegExp with `|` alternation, eliminating array traversal.
+- **Zero-overhead sync API** — When metadata is pre-loaded, no async overhead at all.
+- **Lean metadata** — Only LANDLINE, MOBILE, VOIP patterns included. No toll-free, premium, or special service bloat.
+
+All metadata is automatically generated from [Google's official PhoneNumberMetadata.xml](https://github.com/google/libphonenumber/blob/master/resources/PhoneNumberMetadata.xml) — the same source used by libphonenumber — ensuring correctness while maximizing performance.
 
 ## Development
 
