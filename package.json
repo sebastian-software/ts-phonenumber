@@ -1,0 +1,117 @@
+{
+  "name": "ts-phonenumber",
+  "version": "0.0.0",
+  "description": "TypeScript-first phone-number parsing/formatting/validation library based on Google's libphonenumber",
+  "keywords": [
+    "phone",
+    "phonenumber",
+    "telephone",
+    "libphonenumber",
+    "e164",
+    "validation",
+    "formatting",
+    "parsing",
+    "typescript"
+  ],
+  "homepage": "https://github.com/sebastian-software/ts-phonenumber#readme",
+  "bugs": {
+    "url": "https://github.com/sebastian-software/ts-phonenumber/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastian-software/ts-phonenumber.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Sebastian Software GmbH <info@sebastian-software.de>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./metadata/countries/*": {
+      "import": {
+        "types": "./dist/metadata/countries/*.d.ts",
+        "default": "./dist/metadata/countries/*.js"
+      },
+      "require": {
+        "types": "./dist/metadata/countries/*.d.cts",
+        "default": "./dist/metadata/countries/*.cjs"
+      }
+    },
+    "./metadata/groups/*": {
+      "import": {
+        "types": "./dist/metadata/groups/*.d.ts",
+        "default": "./dist/metadata/groups/*.js"
+      },
+      "require": {
+        "types": "./dist/metadata/groups/*.d.cts",
+        "default": "./dist/metadata/groups/*.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "ts-phonenumber": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepare": "husky",
+    "release": "release-it",
+    "upstream:download": "tsx scripts/download-upstream.ts",
+    "upstream:convert-metadata": "tsx scripts/convert-metadata.ts",
+    "upstream:convert-tests": "tsx scripts/convert-tests.ts",
+    "upstream:update": "tsx scripts/update-upstream.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^22.10.7",
+    "eslint": "^9.18.0",
+    "fast-xml-parser": "^5.3.3",
+    "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "prettier": "^3.4.2",
+    "release-it": "^18.1.2",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
+    "vitest": "^3.0.2"
+  },
+  "dependencies": {
+    "commander": "^13.0.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
+  "lint-staged": {
+    "*.{js,ts,mjs,cjs,json,md,yaml,yml}": "prettier --write"
+  }
+}
