@@ -12,15 +12,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * changelog creation ([df9925a](https://github.com/sebastian-software/ts-phonenumber/commit/df9925a84d1cbdbb7c0565afd1bb6ac7fb0fe94f))
 
-## [Unreleased]
-
-### Added
-
-- Initial implementation of phone number parsing, validation, and formatting
-- Support for LANDLINE, MOBILE, and VOIP number types
-- Async API with on-demand metadata loading via dynamic imports
-- CLI tool with validate, parse, format, and type commands
-- Metadata for DE, AT, CH, US, GB
-- DACH group bundle
-- ESM and CJS builds
-- Full TypeScript type definitions
