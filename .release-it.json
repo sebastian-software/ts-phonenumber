@@ -14,7 +14,7 @@
     "autoGenerate": true,
     "draft": false,
     "preRelease": false,
-    "tokenRef": "RELEASEIT_TOKEN"
+    "tokenRef": "GITHUB_TOKEN"
   },
   "npm": {
     "publish": true
