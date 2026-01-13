@@ -54,6 +54,9 @@ const ALPHA_MAP: Record<string, string> = {
 /** Pattern for E.164 format: starts with + followed by digits */
 const E164_PATTERN = /^\+[1-9]\d{1,14}$/
 
+/** Cache for compiled regex patterns - avoids recompilation on every call */
+const regexCache = new Map<string, RegExp>()
+
 /**
  * Parses a phone number string into a structured ParsedPhoneNumber object.
  * This is an async function as it may need to load region metadata.
@@ -146,6 +149,9 @@ export function parseSync(input: string, options: ParseOptions = {}): ParsedPhon
   return parseNationalSync(normalized, defaultRegion, input)
 }
 
+/** Fast check if string contains only digits and optional leading + */
+const CLEAN_E164_PATTERN = /^\+[1-9][0-9]{6,14}$/
+
 /**
  * Normalizes phone number input by removing formatting characters.
  * Handles RFC3966 tel: URIs with phone-context parameter.
@@ -155,12 +161,26 @@ function normalizeInput(input: string): string {
     return ""
   }
 
+  // Fast path: clean E.164 numbers (most common case)
+  // Avoids all the expensive string operations below
+  if (CLEAN_E164_PATTERN.test(input)) {
+    return input
+  }
+
   // Trim and work with the input
   let normalized = input.trim()
 
-  // Handle tel: URI prefix
-  if (normalized.toLowerCase().startsWith("tel:")) {
-    normalized = normalized.slice(4)
+  // Fast path after trim
+  if (CLEAN_E164_PATTERN.test(normalized)) {
+    return normalized
+  }
+
+  // Handle tel: URI prefix (check first char for speed)
+  if (normalized.charCodeAt(0) === 116 || normalized.charCodeAt(0) === 84) {
+    // 't' or 'T'
+    if (normalized.slice(0, 4).toLowerCase() === "tel:") {
+      normalized = normalized.slice(4)
+    }
   }
 
   // Extract and handle RFC3966 phone-context parameter
@@ -456,30 +476,39 @@ function parseNationalSync(
 }
 
 /**
+ * Gets or creates a cached RegExp for a pattern.
+ */
+function getCachedRegex(pattern: string): RegExp {
+  let regex = regexCache.get(pattern)
+  if (!regex) {
+    regex = new RegExp(`^${pattern}$`)
+    regexCache.set(pattern, regex)
+  }
+  return regex
+}
+
+/**
  * Determines the phone number type based on metadata patterns.
  */
 function determineType(nationalNumber: string, metadata: RegionMetadata): PhoneNumberType {
   // Check mobile pattern
   if (metadata.mobile?.pattern) {
-    const mobileRegex = new RegExp(`^${metadata.mobile.pattern}$`)
-    if (mobileRegex.test(nationalNumber)) {
+    if (getCachedRegex(metadata.mobile.pattern).test(nationalNumber)) {
       return PhoneNumberType.MOBILE
     }
   }
 
   // Check fixed line pattern
   if (metadata.fixedLine?.pattern) {
-    const fixedLineRegex = new RegExp(`^${metadata.fixedLine.pattern}$`)
-    if (fixedLineRegex.test(nationalNumber)) {
+    if (getCachedRegex(metadata.fixedLine.pattern).test(nationalNumber)) {
       return PhoneNumberType.LANDLINE
     }
   }
 
   // Check VoIP pattern
-  /* v8 ignore next 6 - VoIP patterns vary by region, not all have VoIP definitions */
+  /* v8 ignore next 5 - VoIP patterns vary by region, not all have VoIP definitions */
   if (metadata.voip?.pattern) {
-    const voipRegex = new RegExp(`^${metadata.voip.pattern}$`)
-    if (voipRegex.test(nationalNumber)) {
+    if (getCachedRegex(metadata.voip.pattern).test(nationalNumber)) {
       return PhoneNumberType.VOIP
     }
   }

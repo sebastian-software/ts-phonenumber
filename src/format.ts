@@ -8,6 +8,19 @@ import { parse, parseSync } from "./parse.js"
 import { loadRegionMetadata, getCachedRegionMetadata } from "./metadata/index.js"
 import type { RegionMetadata, NumberFormat } from "./metadata/index.js"
 
+/** Cache for compiled regex patterns */
+const regexCache = new Map<string, RegExp>()
+
+function getCachedRegex(pattern: string, anchored: boolean = false): RegExp {
+  const key = anchored ? `^${pattern}$` : pattern
+  let regex = regexCache.get(key)
+  if (!regex) {
+    regex = anchored ? new RegExp(`^${pattern}$`) : new RegExp(pattern)
+    regexCache.set(key, regex)
+  }
+  return regex
+}
+
 /**
  * Formats a phone number according to the specified format.
  *
@@ -169,13 +182,9 @@ function applyFormat(
     return defaultFormat(nationalNumber)
   }
 
-  // Apply the format
-  const pattern = new RegExp(matchingFormat.pattern)
-  // For now, use the same format for both international and national
-  // The actual formatting with prefixes is handled elsewhere
-  const formatString = matchingFormat.format
-
-  const formatted = nationalNumber.replace(pattern, formatString)
+  // Apply the format (use cached regex)
+  const pattern = getCachedRegex(matchingFormat.pattern)
+  const formatted = nationalNumber.replace(pattern, matchingFormat.format)
   return formatted
 }
 
@@ -190,17 +199,15 @@ function findMatchingFormat(
     // Check leading digits if specified
     if (format.leadingDigits && format.leadingDigits.length > 0) {
       const matches = format.leadingDigits.some((leadingPattern) => {
-        const regex = new RegExp(`^${leadingPattern}`)
-        return regex.test(nationalNumber)
+        return getCachedRegex(`^${leadingPattern}`).test(nationalNumber)
       })
       if (!matches) {
         continue
       }
     }
 
-    // Check if the pattern matches
-    const patternRegex = new RegExp(`^${format.pattern}$`)
-    if (patternRegex.test(nationalNumber)) {
+    // Check if the pattern matches (use cached anchored regex)
+    if (getCachedRegex(format.pattern, true).test(nationalNumber)) {
       return format
     }
   }
