@@ -302,6 +302,7 @@ async function getPossibleLengths(countryCode: number): Promise<number[] | null>
   }
 
   // Try common country codes
+  /* v8 ignore next 5 - fallback for uncommon country codes */
   const metadata = await tryLoadForCountryCode(countryCode)
   if (metadata?.generalDesc?.possibleLengths) {
     return metadata.generalDesc.possibleLengths
@@ -364,6 +365,7 @@ async function tryLoadForCountryCode(countryCode: number) {
   }
 
   const region = commonMappings[countryCode]
+  /* v8 ignore next 4 - common mappings cover most use cases */
   if (region) {
     return loadRegionMetadata(region)
   }

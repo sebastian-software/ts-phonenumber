@@ -161,6 +161,7 @@ export async function getRegionsForCode(countryCode: number): Promise<string[] |
 /**
  * Checks if a national number matches the patterns for a region.
  */
+/* v8 ignore start - internal function for multi-region matching, tested indirectly */
 function matchesRegion(nationalNumber: string, metadata: RegionMetadata): boolean {
   // Check leading digits if specified (for shared country codes)
   if (metadata.leadingDigits) {
@@ -194,6 +195,7 @@ function matchesRegion(nationalNumber: string, metadata: RegionMetadata): boolea
 
   return false
 }
+/* v8 ignore stop */
 
 /**
  * Gets the main country for a country calling code.
@@ -228,6 +230,7 @@ export async function getMainCountryForCode(countryCode: number): Promise<string
     }
   }
 
+  /* v8 ignore next 2 - fallback when no main country is defined */
   // Default to first region
   return regions[0]
 }

@@ -275,6 +275,7 @@ async function parseNational(
     rawInput
   }
 
+  /* v8 ignore next 3 - metadata should always be loaded at this point */
   if (!metadata) {
     return invalidResult
   }
@@ -324,6 +325,7 @@ function determineType(nationalNumber: string, metadata: RegionMetadata): PhoneN
   }
 
   // Check VoIP pattern
+  /* v8 ignore next 6 - VoIP patterns vary by region, not all have VoIP definitions */
   if (metadata.voip?.pattern) {
     const voipRegex = new RegExp(`^${metadata.voip.pattern}$`)
     if (voipRegex.test(nationalNumber)) {

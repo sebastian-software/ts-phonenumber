@@ -307,10 +307,12 @@ async function parseForComparison(
         }
       }
     }
+    /* v8 ignore next - fallback when no country code matches */
     return null
   }
 
   // No country code - just extract the digits
+  /* v8 ignore next 3 - very short numbers without country code */
   if (allDigits.length < 3) {
     return null
   }

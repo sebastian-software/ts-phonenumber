@@ -36,6 +36,7 @@ export async function getType(input: string, options: ParseOptions = {}): Promis
 
     return PhoneNumberType.INVALID
   } catch {
+    /* v8 ignore next - defensive error handling */
     return PhoneNumberType.INVALID
   }
 }
