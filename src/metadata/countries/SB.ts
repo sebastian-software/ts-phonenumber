@@ -1,0 +1,44 @@
+/**
+ * Phone number metadata for SB
+ * Country calling code: +677
+ *
+ * Auto-generated from libphonenumber PhoneNumberMetadata.xml
+ * Do not edit manually.
+ */
+
+import type { RegionMetadata } from "../types.js"
+
+const metadata: RegionMetadata = {
+  regionCode: "SB",
+  countryCode: 677,
+  internationalPrefix: "0[01]",
+  generalDesc: {
+    pattern: "[6-9]\\d{6}|[1-6]\\d{4}",
+    possibleLengths: [5, 7]
+  },
+  fixedLine: {
+    pattern: "(?:1[4-79]|[23]\\d|4[0-2]|5[03]|6[0-37])\\d{3}",
+    example: "40123",
+    possibleLengths: [5]
+  },
+  mobile: {
+    pattern:
+      "48\\d{3}|(?:(?:6[89]|7[1-9]|8[4-9])\\d|9(?:1[2-9]|2[013-9]|3[0-2]|[46]\\d|5[0-46-9]|7[0-689]|8[0-79]|9[0-8]))\\d{4}",
+    example: "7421234",
+    possibleLengths: [5, 7]
+  },
+  voip: {
+    pattern: "5[12]\\d{3}",
+    example: "51123",
+    possibleLengths: [5]
+  },
+  formats: [
+    {
+      pattern: "(\\d{2})(\\d{5})",
+      format: "$1 $2",
+      leadingDigits: ["6[89]|7|8[4-9]|9(?:[1-8]|9[0-8])"]
+    }
+  ]
+}
+
+export default metadata
