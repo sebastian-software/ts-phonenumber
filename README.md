@@ -135,6 +135,61 @@ This library only supports the following number types:
 
 All other types (toll-free, premium rate, shared cost, etc.) are treated as **INVALID**.
 
+## Scope & Testing Transparency
+
+### Why This Library?
+
+Google's libphonenumber is the industry standard, but it comes with trade-offs:
+
+| Aspect       | libphonenumber                 | ts-phonenumber                 |
+| ------------ | ------------------------------ | ------------------------------ |
+| Language     | Java (with JS port)            | TypeScript-native              |
+| Bundle size  | ~200-300KB (all metadata)      | ~5KB core + on-demand metadata |
+| Number types | All (toll-free, premium, etc.) | Only LANDLINE, MOBILE, VOIP    |
+| API style    | Synchronous                    | Async (enables code splitting) |
+| Runtime      | Any                            | Node 20+, modern browsers      |
+
+**Our focus:** Most applications only need to validate user-provided phone numbers (mobile/landline). By excluding special service numbers, we keep bundles small and validation strict.
+
+### Test Coverage
+
+We validate our implementation against Google's original test suite:
+
+| Source                       | Original Tests | Converted | Coverage     |
+| ---------------------------- | -------------- | --------- | ------------ |
+| `phonenumberutil_test.js`    | 111            | 96        | 86%          |
+| `asyoutypeformatter_test.js` | 33             | 0         | Not in scope |
+| **Total**                    | **144**        | **129**   | **90%**      |
+
+**Skipped tests (5)** are explicitly marked with reasons:
+
+- Toll-free number formatting (not in scope)
+- Premium rate number formatting (not in scope)
+- Complex edge cases (documented individually)
+
+### What We Explicitly Don't Support
+
+| Feature                                | Reason                              |
+| -------------------------------------- | ----------------------------------- |
+| Toll-free numbers (800, 0800, etc.)    | Outside user-input validation scope |
+| Premium rate numbers (900, 0900, etc.) | Outside user-input validation scope |
+| Short codes (SMS short numbers)        | Outside user-input validation scope |
+| Shared cost, UAN, Voicemail            | Outside user-input validation scope |
+| AsYouTypeFormatter                     | Complexity vs. value trade-off      |
+| Legacy runtimes (Node < 20)            | Modern tooling requirement          |
+
+Numbers of unsupported types will parse successfully but return `type: "INVALID"` and `isValid: false`.
+
+### Metadata Updates
+
+Metadata is derived from Google's libphonenumber and updated via semi-automatic tooling:
+
+```bash
+pnpm upstream:update  # Check for updates, convert, test
+```
+
+The current upstream version is tracked in `upstream/.version`.
+
 ## Metadata Bundles
 
 Metadata is organized into individual country modules and group bundles:
