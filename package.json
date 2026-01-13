@@ -1,6 +1,6 @@
 {
   "name": "ts-phonenumber",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "TypeScript-first phone-number parsing/formatting/validation library based on Google's libphonenumber",
   "keywords": [
     "phone",
