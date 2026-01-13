@@ -22,6 +22,7 @@
     "url": "git+https://github.com/sebastian-software/ts-phonenumber.git"
   },
   "license": "Apache-2.0",
+  "sideEffects": false,
   "author": "Sebastian Software GmbH <info@sebastian-software.de>",
   "type": "module",
   "exports": {
