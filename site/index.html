@@ -18,12 +18,16 @@
       :root {
         --color-bg: #0a0a0a;
         --color-surface: #141414;
+        --color-surface-hover: #1a1a1a;
         --color-border: #262626;
+        --color-border-hover: #333;
         --color-text: #fafafa;
         --color-text-muted: #a1a1aa;
         --color-primary: #3b82f6;
         --color-primary-hover: #60a5fa;
+        --color-primary-glow: rgba(59, 130, 246, 0.15);
         --color-success: #22c55e;
+        --color-purple: #a855f7;
         --color-code-bg: #1e1e1e;
         --font-sans: "Inter", system-ui, sans-serif;
         --font-mono: "JetBrains Mono", monospace;
@@ -44,6 +48,7 @@
         background: var(--color-bg);
         color: var(--color-text);
         line-height: 1.6;
+        overflow-x: hidden;
       }
 
       a {
@@ -68,7 +73,9 @@
         border-bottom: 1px solid var(--color-border);
         position: sticky;
         top: 0;
-        background: var(--color-bg);
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         z-index: 100;
       }
 
@@ -82,6 +89,13 @@
         font-weight: 700;
         font-size: 1.25rem;
         color: var(--color-text);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logo svg {
+        color: var(--color-primary);
       }
 
       .nav-links {
@@ -94,16 +108,93 @@
         color: var(--color-text-muted);
         font-weight: 500;
         font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: color 0.2s;
       }
 
       .nav-links a:hover {
         color: var(--color-text);
       }
 
+      .nav-links svg {
+        width: 16px;
+        height: 16px;
+        opacity: 0.7;
+      }
+
       /* Hero */
       .hero {
         padding: 6rem 0;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 1200px;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .hero-glow {
+        position: absolute;
+        top: -200px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 800px;
+        height: 600px;
+        background: radial-gradient(
+          ellipse at center,
+          var(--color-primary-glow) 0%,
+          rgba(168, 85, 247, 0.08) 30%,
+          transparent 70%
+        );
+        filter: blur(60px);
+        z-index: 0;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-purple));
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow:
+          0 0 60px var(--color-primary-glow),
+          0 20px 40px rgba(0, 0, 0, 0.3);
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .hero-icon svg {
+        width: 40px;
+        height: 40px;
+        color: white;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
       }
 
       .hero h1 {
@@ -114,7 +205,7 @@
       }
 
       .hero h1 span {
-        background: linear-gradient(135deg, var(--color-primary), #a855f7);
+        background: linear-gradient(135deg, var(--color-primary), var(--color-purple));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -136,7 +227,7 @@
 
       .btn {
         padding: 0.75rem 1.5rem;
-        border-radius: 8px;
+        border-radius: 10px;
         font-weight: 600;
         font-size: 0.95rem;
         transition: all 0.2s;
@@ -145,13 +236,20 @@
         gap: 0.5rem;
       }
 
+      .btn svg {
+        width: 18px;
+        height: 18px;
+      }
+
       .btn-primary {
-        background: var(--color-primary);
+        background: linear-gradient(135deg, var(--color-primary), #2563eb);
         color: white;
+        box-shadow: 0 4px 15px var(--color-primary-glow);
       }
 
       .btn-primary:hover {
-        background: var(--color-primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px var(--color-primary-glow);
         color: white;
       }
 
@@ -162,8 +260,10 @@
       }
 
       .btn-secondary:hover {
-        background: var(--color-border);
+        background: var(--color-surface-hover);
+        border-color: var(--color-border-hover);
         color: var(--color-text);
+        transform: translateY(-2px);
       }
 
       /* Badges */
@@ -172,7 +272,16 @@
         gap: 0.5rem;
         justify-content: center;
         flex-wrap: wrap;
-        margin-top: 2rem;
+        margin-top: 2.5rem;
+      }
+
+      .badges a,
+      .badges img {
+        transition: transform 0.2s;
+      }
+
+      .badges a:hover {
+        transform: translateY(-2px);
       }
 
       /* Features */
@@ -181,48 +290,91 @@
         border-top: 1px solid var(--color-border);
       }
 
-      .features h2 {
+      .section-header {
         text-align: center;
-        font-size: 2rem;
         margin-bottom: 3rem;
+      }
+
+      .section-header h2 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .section-header p {
+        color: var(--color-text-muted);
+        font-size: 1.1rem;
       }
 
       .feature-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 1.5rem;
       }
 
       .feature-card {
         background: var(--color-surface);
         border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 1.75rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-purple));
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .feature-card:hover {
+        border-color: var(--color-border-hover);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .feature-card:hover::before {
+        opacity: 1;
+      }
+
+      .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--color-primary-glow), rgba(168, 85, 247, 0.1));
         border-radius: 12px;
-        padding: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-icon svg {
+        width: 24px;
+        height: 24px;
+        color: var(--color-primary);
       }
 
       .feature-card h3 {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
       }
 
       .feature-card p {
         color: var(--color-text-muted);
         font-size: 0.95rem;
+        line-height: 1.6;
       }
 
       /* Code Example */
       .code-section {
         padding: 5rem 0;
         border-top: 1px solid var(--color-border);
-      }
-
-      .code-section h2 {
-        text-align: center;
-        font-size: 2rem;
-        margin-bottom: 3rem;
       }
 
       .code-tabs {
@@ -232,18 +384,31 @@
       }
 
       .code-tab {
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 1.2rem;
         background: transparent;
         border: 1px solid var(--color-border);
-        border-radius: 6px;
+        border-radius: 8px;
         color: var(--color-text-muted);
         cursor: pointer;
         font-family: var(--font-sans);
         font-size: 0.9rem;
+        font-weight: 500;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
       }
 
-      .code-tab:hover,
+      .code-tab svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .code-tab:hover {
+        background: var(--color-surface);
+        color: var(--color-text);
+      }
+
       .code-tab.active {
         background: var(--color-surface);
         color: var(--color-text);
@@ -253,8 +418,9 @@
       .code-block {
         background: var(--color-code-bg);
         border: 1px solid var(--color-border);
-        border-radius: 12px;
+        border-radius: 16px;
         overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
       }
 
       .code-header {
@@ -264,6 +430,30 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+      }
+
+      .code-header-dots {
+        display: flex;
+        gap: 6px;
+      }
+
+      .code-header-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--color-border);
+      }
+
+      .code-header-dot:nth-child(1) {
+        background: #ff5f57;
+      }
+
+      .code-header-dot:nth-child(2) {
+        background: #febc2e;
+      }
+
+      .code-header-dot:nth-child(3) {
+        background: #28c840;
       }
 
       .code-header span {
@@ -317,29 +507,22 @@
         border-top: 1px solid var(--color-border);
       }
 
-      .benchmarks h2 {
-        text-align: center;
-        font-size: 2rem;
-        margin-bottom: 1rem;
-      }
-
-      .benchmarks > p {
-        text-align: center;
-        color: var(--color-text-muted);
-        margin-bottom: 3rem;
+      .benchmark-table-wrapper {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
       }
 
       .benchmark-table {
         width: 100%;
         border-collapse: collapse;
         background: var(--color-surface);
-        border-radius: 12px;
-        overflow: hidden;
       }
 
       .benchmark-table th,
       .benchmark-table td {
-        padding: 1rem;
+        padding: 1rem 1.25rem;
         text-align: left;
         border-bottom: 1px solid var(--color-border);
       }
@@ -347,7 +530,7 @@
       .benchmark-table th {
         background: var(--color-bg);
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: var(--color-text-muted);
@@ -361,15 +544,85 @@
         border-bottom: none;
       }
 
+      .benchmark-table tbody tr {
+        transition: background 0.2s;
+      }
+
+      .benchmark-table tbody tr:hover {
+        background: var(--color-surface-hover);
+      }
+
       .speed {
         color: var(--color-success);
         font-weight: 600;
         font-family: var(--font-mono);
+        font-size: 0.95rem;
       }
 
       .faster {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
         color: var(--color-primary);
         font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .faster svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      /* Installation */
+      .install-section {
+        padding: 5rem 0;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .install-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .install-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s;
+      }
+
+      .install-card:hover {
+        border-color: var(--color-border-hover);
+        transform: translateY(-2px);
+      }
+
+      .install-card-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--color-bg);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .install-card-icon svg {
+        width: 20px;
+        height: 20px;
+        color: var(--color-text-muted);
+      }
+
+      .install-card code {
+        font-size: 0.9rem;
+        color: var(--color-text);
       }
 
       /* Footer */
@@ -382,6 +635,17 @@
 
       footer p {
         font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      footer svg {
+        width: 16px;
+        height: 16px;
+        color: #ef4444;
       }
 
       footer a {
@@ -394,6 +658,10 @@
 
       /* Responsive */
       @media (max-width: 768px) {
+        .hero {
+          padding: 4rem 0;
+        }
+
         .hero h1 {
           font-size: 2.5rem;
         }
@@ -402,8 +670,26 @@
           font-size: 1.1rem;
         }
 
+        .hero-icon {
+          width: 64px;
+          height: 64px;
+        }
+
+        .hero-icon svg {
+          width: 32px;
+          height: 32px;
+        }
+
         .nav-links {
           gap: 1rem;
+        }
+
+        .nav-links span {
+          display: none;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
         }
 
         .benchmark-table {
@@ -414,20 +700,137 @@
         .benchmark-table td {
           padding: 0.75rem;
         }
+
+        .code-tabs {
+          flex-wrap: wrap;
+        }
+
+        .install-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
     <header>
       <nav class="container">
-        <span class="logo">ts-phonenumber</span>
+        <span class="logo">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+            />
+          </svg>
+          ts-phonenumber
+        </span>
         <ul class="nav-links">
-          <li><a href="#features">Features</a></li>
-          <li><a href="#usage">Usage</a></li>
-          <li><a href="#benchmarks">Benchmarks</a></li>
-          <li><a href="./api/">API Docs</a></li>
           <li>
-            <a href="https://github.com/sebastian-software/ts-phonenumber">GitHub</a>
+            <a href="#features">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 17 12 22 22 17" />
+                <polyline points="2 12 12 17 22 12" />
+              </svg>
+              <span>Features</span>
+            </a>
+          </li>
+          <li>
+            <a href="#usage">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
+              </svg>
+              <span>Usage</span>
+            </a>
+          </li>
+          <li>
+            <a href="#benchmarks">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+              <span>Benchmarks</span>
+            </a>
+          </li>
+          <li>
+            <a href="./api/">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+              <span>API</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/sebastian-software/ts-phonenumber">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"
+                />
+                <path d="M9 18c-4.51 2-5-2-7-2" />
+              </svg>
+              <span>GitHub</span>
+            </a>
           </li>
         </ul>
       </nav>
@@ -435,37 +838,106 @@
 
     <main>
       <section class="hero">
+        <div class="hero-glow"></div>
         <div class="container">
-          <h1>The <span>Fastest</span> Phone Number Library</h1>
-          <p>
-            Parse, validate, and format phone numbers with blazing speed and tiny bundles.
-            TypeScript-first, up to 11x faster than alternatives.
-          </p>
-          <div class="hero-buttons">
-            <a href="#usage" class="btn btn-primary">Get Started</a>
-            <a href="./api/" class="btn btn-secondary">API Documentation</a>
-          </div>
-          <div class="badges">
-            <a href="https://www.npmjs.com/package/ts-phonenumber">
-              <img src="https://img.shields.io/npm/v/ts-phonenumber.svg" alt="npm version" />
-            </a>
-            <a href="https://bundlephobia.com/package/ts-phonenumber">
-              <img
-                src="https://img.shields.io/bundlephobia/minzip/ts-phonenumber"
-                alt="bundle size"
-              />
-            </a>
-            <img src="https://img.shields.io/badge/TypeScript-5.0-blue.svg" alt="TypeScript" />
-            <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" />
+          <div class="hero-content">
+            <div class="hero-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                />
+              </svg>
+            </div>
+            <h1>The <span>Fastest</span> Phone Number Library</h1>
+            <p>
+              Parse, validate, and format phone numbers with blazing speed and tiny bundles.
+              TypeScript-first, up to 11x faster than alternatives.
+            </p>
+            <div class="hero-buttons">
+              <a href="#usage" class="btn btn-primary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                Get Started
+              </a>
+              <a href="./api/" class="btn btn-secondary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+                API Documentation
+              </a>
+            </div>
+            <div class="badges">
+              <a href="https://www.npmjs.com/package/ts-phonenumber">
+                <img src="https://img.shields.io/npm/v/ts-phonenumber.svg" alt="npm version" />
+              </a>
+              <a href="https://bundlephobia.com/package/ts-phonenumber">
+                <img
+                  src="https://img.shields.io/bundlephobia/minzip/ts-phonenumber"
+                  alt="bundle size"
+                />
+              </a>
+              <img src="https://img.shields.io/badge/TypeScript-5.0-blue.svg" alt="TypeScript" />
+              <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" />
+            </div>
           </div>
         </div>
       </section>
 
       <section class="features" id="features">
         <div class="container">
-          <h2>Why ts-phonenumber?</h2>
+          <div class="section-header">
+            <h2>Why ts-phonenumber?</h2>
+            <p>Built for performance without compromising on features</p>
+          </div>
           <div class="feature-grid">
             <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+              </div>
               <h3>Blazing Fast</h3>
               <p>
                 Pre-compiled RegExp patterns and bitmap-based validation. Up to 11x faster than
@@ -473,6 +945,26 @@
               </p>
             </div>
             <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m7.5 4.27 9 5.15" />
+                  <path
+                    d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+                  />
+                  <path d="m3.3 7 8.7 5 8.7-5" />
+                  <path d="M12 22V12" />
+                </svg>
+              </div>
               <h3>Tiny Bundles</h3>
               <p>
                 ~5KB core + on-demand metadata loading. Only load the countries you need via dynamic
@@ -480,6 +972,23 @@
               </p>
             </div>
             <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m18 16 4-4-4-4" />
+                  <path d="m6 8-4 4 4 4" />
+                  <path d="m14.5 4-5 16" />
+                </svg>
+              </div>
               <h3>TypeScript-First</h3>
               <p>
                 Built from the ground up in TypeScript with full type safety and comprehensive type
@@ -487,6 +996,23 @@
               </p>
             </div>
             <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M17 6.1H3" />
+                  <path d="M21 12.1H3" />
+                  <path d="M15.1 18H3" />
+                </svg>
+              </div>
               <h3>Dual API</h3>
               <p>
                 Async API for lazy loading in web apps. Sync API for maximum performance in servers
@@ -494,12 +1020,48 @@
               </p>
             </div>
             <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path
+                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                  />
+                </svg>
+              </div>
               <h3>Modern Runtimes</h3>
               <p>
-                Supports Node.js 20+, Bun, and modern browsers. ESM and CommonJS builds included.
+                Supports Node.js 20+, Bun, Deno, and modern browsers. ESM and CommonJS builds
+                included.
               </p>
             </div>
             <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="4 17 10 11 4 5" />
+                  <line x1="12" y1="19" x2="20" y2="19" />
+                </svg>
+              </div>
               <h3>CLI Included</h3>
               <p>
                 Command-line tool for quick validation, parsing, and formatting. Great for scripting
@@ -510,16 +1072,169 @@
         </div>
       </section>
 
+      <section class="install-section" id="install">
+        <div class="container">
+          <div class="section-header">
+            <h2>Installation</h2>
+            <p>Get started with your favorite package manager</p>
+          </div>
+          <div class="install-grid">
+            <div class="install-card">
+              <div class="install-card-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                  />
+                  <polyline points="3.29 7 12 12 20.71 7" />
+                  <line x1="12" y1="22" x2="12" y2="12" />
+                </svg>
+              </div>
+              <code>npm install ts-phonenumber</code>
+            </div>
+            <div class="install-card">
+              <div class="install-card-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                  />
+                  <polyline points="3.29 7 12 12 20.71 7" />
+                  <line x1="12" y1="22" x2="12" y2="12" />
+                </svg>
+              </div>
+              <code>pnpm add ts-phonenumber</code>
+            </div>
+            <div class="install-card">
+              <div class="install-card-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                  />
+                  <polyline points="3.29 7 12 12 20.71 7" />
+                  <line x1="12" y1="22" x2="12" y2="12" />
+                </svg>
+              </div>
+              <code>yarn add ts-phonenumber</code>
+            </div>
+            <div class="install-card">
+              <div class="install-card-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                  />
+                  <polyline points="3.29 7 12 12 20.71 7" />
+                  <line x1="12" y1="22" x2="12" y2="12" />
+                </svg>
+              </div>
+              <code>bun add ts-phonenumber</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="code-section" id="usage">
         <div class="container">
-          <h2>Quick Start</h2>
+          <div class="section-header">
+            <h2>Quick Start</h2>
+            <p>Parse, validate, and format phone numbers in seconds</p>
+          </div>
           <div class="code-tabs">
-            <button class="code-tab active" data-tab="async">Async API</button>
-            <button class="code-tab" data-tab="sync">Sync API</button>
-            <button class="code-tab" data-tab="cli">CLI</button>
+            <button class="code-tab active" data-tab="async">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              Async API
+            </button>
+            <button class="code-tab" data-tab="sync">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+              Sync API
+            </button>
+            <button class="code-tab" data-tab="cli">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="4 17 10 11 4 5" />
+                <line x1="12" y1="19" x2="20" y2="19" />
+              </svg>
+              CLI
+            </button>
           </div>
           <div class="code-block">
             <div class="code-header">
+              <div class="code-header-dots">
+                <span class="code-header-dot"></span>
+                <span class="code-header-dot"></span>
+                <span class="code-header-dot"></span>
+              </div>
               <span>TypeScript</span>
             </div>
             <div class="code-content active" id="async">
@@ -581,62 +1296,318 @@ ts-phonenumber type <span class="string">"+491701234567"</span>
 
       <section class="benchmarks" id="benchmarks">
         <div class="container">
-          <h2>Performance Benchmarks</h2>
-          <p>ts-phonenumber wins all 7 benchmarks against popular alternatives</p>
-          <table class="benchmark-table">
-            <thead>
-              <tr>
-                <th>Benchmark</th>
-                <th>ts-phonenumber</th>
-                <th>vs libphonenumber-js</th>
-                <th>vs google-libphonenumber</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Parse E.164</td>
-                <td><span class="speed">1.56M/s</span></td>
-                <td><span class="faster">3.3x faster</span></td>
-                <td><span class="faster">4.9x faster</span></td>
-              </tr>
-              <tr>
-                <td>Parse national</td>
-                <td><span class="speed">2.14M/s</span></td>
-                <td><span class="faster">6.4x faster</span></td>
-                <td><span class="faster">9.9x faster</span></td>
-              </tr>
-              <tr>
-                <td>Validate</td>
-                <td><span class="speed">1.53M/s</span></td>
-                <td><span class="faster">5.4x faster</span></td>
-                <td><span class="faster">6.2x faster</span></td>
-              </tr>
-              <tr>
-                <td>Format E.164</td>
-                <td><span class="speed">32.4M/s</span></td>
-                <td><span class="faster">4.3x faster</span></td>
-                <td><span class="faster">1.5x faster</span></td>
-              </tr>
-              <tr>
-                <td>Format International</td>
-                <td><span class="speed">2.30M/s</span></td>
-                <td><span class="faster">7.3x faster</span></td>
-                <td><span class="faster">6.1x faster</span></td>
-              </tr>
-              <tr>
-                <td>Full pipeline</td>
-                <td><span class="speed">1.51M/s</span></td>
-                <td><span class="faster">4.8x faster</span></td>
-                <td><span class="faster">11.2x faster</span></td>
-              </tr>
-              <tr>
-                <td>Batch (10 nums)</td>
-                <td><span class="speed">160K/s</span></td>
-                <td><span class="faster">7.4x faster</span></td>
-                <td><span class="faster">5.7x faster</span></td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="section-header">
+            <h2>Performance Benchmarks</h2>
+            <p>ts-phonenumber wins all 7 benchmarks against popular alternatives</p>
+          </div>
+          <div class="benchmark-table-wrapper">
+            <table class="benchmark-table">
+              <thead>
+                <tr>
+                  <th>Benchmark</th>
+                  <th>ts-phonenumber</th>
+                  <th>vs libphonenumber-js</th>
+                  <th>vs google-libphonenumber</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Parse E.164</td>
+                  <td><span class="speed">1.56M/s</span></td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      3.3x faster
+                    </span>
+                  </td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      4.9x faster
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Parse national</td>
+                  <td><span class="speed">2.14M/s</span></td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      6.4x faster
+                    </span>
+                  </td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      9.9x faster
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Validate</td>
+                  <td><span class="speed">1.53M/s</span></td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      5.4x faster
+                    </span>
+                  </td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      6.2x faster
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Format E.164</td>
+                  <td><span class="speed">32.4M/s</span></td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      4.3x faster
+                    </span>
+                  </td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      1.5x faster
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Format International</td>
+                  <td><span class="speed">2.30M/s</span></td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      7.3x faster
+                    </span>
+                  </td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      6.1x faster
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Full pipeline</td>
+                  <td><span class="speed">1.51M/s</span></td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      4.8x faster
+                    </span>
+                  </td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      11.2x faster
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Batch (10 nums)</td>
+                  <td><span class="speed">160K/s</span></td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      7.4x faster
+                    </span>
+                  </td>
+                  <td>
+                    <span class="faster">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="19" x2="12" y2="5" />
+                        <polyline points="5 12 12 5 19 12" />
+                      </svg>
+                      5.7x faster
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </main>
@@ -644,10 +1615,26 @@ ts-phonenumber type <span class="string">"+491701234567"</span>
     <footer>
       <div class="container">
         <p>
-          Made by
+          Made with
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+            />
+          </svg>
+          by
           <a href="https://www.sebastian-software.de">Sebastian Software GmbH</a>
-          &middot; Licensed under Apache-2.0 &middot;
-          <a href="https://github.com/sebastian-software/ts-phonenumber">View on GitHub</a>
+          &middot; Apache-2.0 &middot;
+          <a href="https://github.com/sebastian-software/ts-phonenumber">GitHub</a>
         </p>
       </div>
     </footer>
