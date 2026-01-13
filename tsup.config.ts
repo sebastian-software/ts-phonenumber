@@ -35,11 +35,11 @@ export default defineConfig([
   },
   // Group bundles (DACH, EU, G7, etc.)
   {
-    entry: ["src/metadata/groups/*.ts"],
+    entry: ["src/metadata/bundles/*.ts"],
     format: ["esm", "cjs"],
     dts: true,
     sourcemap: true,
     target: "es2022",
-    outDir: "dist/metadata/groups"
+    outDir: "dist/metadata/bundles"
   }
 ])

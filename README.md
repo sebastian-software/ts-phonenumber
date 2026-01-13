@@ -242,7 +242,7 @@ import US from "ts-phonenumber/metadata/countries/US"
 ### Group Bundles
 
 ```typescript
-import DACH from "ts-phonenumber/metadata/groups/DACH" // DE, AT, CH
+import DACH from "ts-phonenumber/metadata/bundles/DACH" // DE, AT, CH
 ```
 
 ## API Reference
