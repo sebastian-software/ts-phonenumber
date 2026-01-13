@@ -181,6 +181,12 @@ function normalizeInput(input: string): string {
   // Remove common formatting characters
   normalized = normalized.replace(FORMATTING_CHARS_PATTERN, "")
 
+  // Handle IDD prefix (00 → +) for international dialing
+  // Common in Europe and many other countries
+  if (normalized.startsWith("00") && normalized.length > 4) {
+    normalized = "+" + normalized.slice(2)
+  }
+
   // Handle extensions (strip for now)
   const extRegex = /^(.+?)(?:ext\.?|x|#)\d+$/i
   const extMatch = extRegex.exec(normalized)
