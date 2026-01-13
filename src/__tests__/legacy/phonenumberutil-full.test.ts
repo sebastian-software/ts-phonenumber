@@ -23,9 +23,6 @@ import {
   getRegionCodeForNumber,
   getCountryCodeForRegion,
   getRegionsForCode,
-  PhoneNumberType,
-  PhoneNumberFormat,
-  MatchType,
   clearMetadataCache,
   registerMetadata
 } from "../../index.js"
@@ -195,17 +192,17 @@ beforeAll(() => {
 describe("Format Tests", () => {
   describe("testFormatUSNumber", () => {
     it("should format US number in NATIONAL format", async () => {
-      const result = await format(toE164(US_NUMBER), PhoneNumberFormat.NATIONAL)
+      const result = await format(toE164(US_NUMBER), "national")
       expect(result).toMatch(/650.*253.*0000/)
     })
 
     it("should format US number in INTERNATIONAL format", async () => {
-      const result = await format(toE164(US_NUMBER), PhoneNumberFormat.INTERNATIONAL)
+      const result = await format(toE164(US_NUMBER), "international")
       expect(result).toMatch(/\+1.*650.*253.*0000/)
     })
 
     it("should format US number in E164 format", async () => {
-      const result = await format(toE164(US_NUMBER), PhoneNumberFormat.E164)
+      const result = await format(toE164(US_NUMBER), "e164")
       expect(result).toBe("+16502530000")
     })
 
@@ -221,88 +218,88 @@ describe("Format Tests", () => {
 
   describe("testFormatBSNumber", () => {
     it("should format BS number in E164 format", async () => {
-      const result = await format(toE164(BS_NUMBER), PhoneNumberFormat.E164)
+      const result = await format(toE164(BS_NUMBER), "e164")
       expect(result).toBe("+12423651234")
     })
   })
 
   describe("testFormatGBNumber", () => {
     it("should format GB fixed line in NATIONAL format", async () => {
-      const result = await format(toE164(GB_NUMBER), PhoneNumberFormat.NATIONAL)
+      const result = await format(toE164(GB_NUMBER), "national")
       expect(result).toContain("20")
       expect(result).toContain("7031")
       expect(result).toContain("3000")
     })
 
     it("should format GB fixed line in INTERNATIONAL format", async () => {
-      const result = await format(toE164(GB_NUMBER), PhoneNumberFormat.INTERNATIONAL)
+      const result = await format(toE164(GB_NUMBER), "international")
       expect(result).toMatch(/\+44.*20.*7031.*3000/)
     })
 
     it("should format GB mobile in E164 format", async () => {
-      const result = await format(toE164(GB_MOBILE), PhoneNumberFormat.E164)
+      const result = await format(toE164(GB_MOBILE), "e164")
       expect(result).toBe("+447912345678")
     })
   })
 
   describe("testFormatDENumber", () => {
     it("should format DE number in E164 format", async () => {
-      const result = await format(toE164(DE_NUMBER), PhoneNumberFormat.E164)
+      const result = await format(toE164(DE_NUMBER), "e164")
       expect(result).toBe("+4930123456")
     })
 
     it("should format DE number with different area codes", async () => {
       const deNumber1: TestNumber = { countryCode: 49, nationalNumber: "301234" }
-      const result1 = await format(toE164(deNumber1), PhoneNumberFormat.E164)
+      const result1 = await format(toE164(deNumber1), "e164")
       expect(result1).toBe("+49301234")
 
       const deNumber2: TestNumber = { countryCode: 49, nationalNumber: "291123" }
-      const result2 = await format(toE164(deNumber2), PhoneNumberFormat.E164)
+      const result2 = await format(toE164(deNumber2), "e164")
       expect(result2).toBe("+49291123")
 
       const deNumber3: TestNumber = { countryCode: 49, nationalNumber: "912312345" }
-      const result3 = await format(toE164(deNumber3), PhoneNumberFormat.E164)
+      const result3 = await format(toE164(deNumber3), "e164")
       expect(result3).toBe("+49912312345")
     })
   })
 
   describe("testFormatITNumber", () => {
     it("should format IT number with leading zero in E164", async () => {
-      const result = await format(toE164(IT_NUMBER), PhoneNumberFormat.E164)
+      const result = await format(toE164(IT_NUMBER), "e164")
       expect(result).toBe("+390236618300")
     })
 
     it("should format IT mobile in E164", async () => {
-      const result = await format(toE164(IT_MOBILE), PhoneNumberFormat.E164)
+      const result = await format(toE164(IT_MOBILE), "e164")
       expect(result).toBe("+39345678901")
     })
   })
 
   describe("testFormatAUNumber", () => {
     it("should format AU number in E164 format", async () => {
-      const result = await format(toE164(AU_NUMBER), PhoneNumberFormat.E164)
+      const result = await format(toE164(AU_NUMBER), "e164")
       expect(result).toBe("+61236618300")
     })
   })
 
   describe("testFormatARNumber", () => {
     it("should format AR number in E164 format", async () => {
-      const result = await format(toE164(AR_NUMBER), PhoneNumberFormat.E164)
+      const result = await format(toE164(AR_NUMBER), "e164")
       expect(result).toBe("+541187654321")
     })
 
     it("should format AR mobile in E164 format", async () => {
-      const result = await format(toE164(AR_MOBILE), PhoneNumberFormat.E164)
+      const result = await format(toE164(AR_MOBILE), "e164")
       expect(result).toBe("+5491187654321")
     })
   })
 
   describe("testFormatMXNumber", () => {
     it("should format MX fixed line in E164 format", async () => {
-      const result1 = await format(toE164(MX_NUMBER1), PhoneNumberFormat.E164)
+      const result1 = await format(toE164(MX_NUMBER1), "e164")
       expect(result1).toBe("+523312345678")
 
-      const result2 = await format(toE164(MX_NUMBER2), PhoneNumberFormat.E164)
+      const result2 = await format(toE164(MX_NUMBER2), "e164")
       expect(result2).toBe("+528211234567")
     })
 
@@ -316,14 +313,14 @@ describe("Format Tests", () => {
 
   describe("testFormatE164Number", () => {
     it("should format various numbers to E164", async () => {
-      expect(await format(toE164(US_NUMBER), PhoneNumberFormat.E164)).toBe("+16502530000")
-      expect(await format(toE164(DE_NUMBER), PhoneNumberFormat.E164)).toBe("+4930123456")
+      expect(await format(toE164(US_NUMBER), "e164")).toBe("+16502530000")
+      expect(await format(toE164(DE_NUMBER), "e164")).toBe("+4930123456")
     })
   })
 
   describe("testFormatRFC3966", () => {
     it("should format to RFC3966 tel: URI", async () => {
-      const result = await format(toE164(US_NUMBER), PhoneNumberFormat.RFC3966)
+      const result = await format(toE164(US_NUMBER), "rfc3966")
       expect(result).toContain("tel:")
       expect(result).toContain("+1")
     })
@@ -604,34 +601,34 @@ describe("Type Detection Tests", () => {
   describe("testIsMobile", () => {
     it("should detect GB mobile as MOBILE", async () => {
       const result = await getType(toE164(GB_MOBILE))
-      expect(result).toBe(PhoneNumberType.MOBILE)
+      expect(result).toBe("mobile")
     })
 
     it("should detect IT mobile as MOBILE", async () => {
       const result = await getType(toE164(IT_MOBILE))
-      expect(result).toBe(PhoneNumberType.MOBILE)
+      expect(result).toBe("mobile")
     })
 
     it("should detect AR mobile as MOBILE", async () => {
       const result = await getType(toE164(AR_MOBILE))
-      expect(result).toBe(PhoneNumberType.MOBILE)
+      expect(result).toBe("mobile")
     })
   })
 
   describe("testIsFixedLine", () => {
     it("should detect GB fixed line as LANDLINE", async () => {
       const result = await getType(toE164(GB_NUMBER))
-      expect(result).toBe(PhoneNumberType.LANDLINE)
+      expect(result).toBe("landline")
     })
 
     it("should detect DE fixed line as LANDLINE", async () => {
       const result = await getType(toE164(DE_NUMBER))
-      expect(result).toBe(PhoneNumberType.LANDLINE)
+      expect(result).toBe("landline")
     })
 
     it("should detect IT fixed line as LANDLINE", async () => {
       const result = await getType(toE164(IT_NUMBER))
-      expect(result).toBe(PhoneNumberType.LANDLINE)
+      expect(result).toBe("landline")
     })
   })
 
@@ -834,139 +831,133 @@ describe("Number Matching Tests", () => {
   describe("isNumberMatchMatches", () => {
     it("should match numbers with different formatting", async () => {
       // Test simple matches where formatting is different
-      expect(await isNumberMatch("+64 3 331 6005", "+64 03 331 6005")).toBe(MatchType.EXACT_MATCH)
+      expect(await isNumberMatch("+64 3 331 6005", "+64 03 331 6005")).toBe("exact_match")
     })
 
     it("should match numbers with spaces removed", async () => {
-      expect(await isNumberMatch("+800 1234 5678", "+80012345678")).toBe(MatchType.EXACT_MATCH)
+      expect(await isNumberMatch("+800 1234 5678", "+80012345678")).toBe("exact_match")
     })
 
     it("should match numbers with different separators", async () => {
-      expect(await isNumberMatch("+64 03 331-6005", "+64 03331 6005")).toBe(MatchType.EXACT_MATCH)
-      expect(await isNumberMatch("+643 331-6005", "+64033316005")).toBe(MatchType.EXACT_MATCH)
-      expect(await isNumberMatch("+643 331-6005", "+6433316005")).toBe(MatchType.EXACT_MATCH)
-      expect(await isNumberMatch("+64 3 331-6005", "+6433316005")).toBe(MatchType.EXACT_MATCH)
+      expect(await isNumberMatch("+64 03 331-6005", "+64 03331 6005")).toBe("exact_match")
+      expect(await isNumberMatch("+643 331-6005", "+64033316005")).toBe("exact_match")
+      expect(await isNumberMatch("+643 331-6005", "+6433316005")).toBe("exact_match")
+      expect(await isNumberMatch("+64 3 331-6005", "+6433316005")).toBe("exact_match")
     })
 
     it("should match numbers with tel: URI and parameters", async () => {
       expect(await isNumberMatch("+64 3 331-6005", "tel:+64-3-331-6005;isub=123")).toBe(
-        MatchType.EXACT_MATCH
+        "exact_match"
       )
     })
 
     it("should match alpha/vanity numbers", async () => {
-      expect(await isNumberMatch("+1800 siX-Flags", "+1 800 7493 5247")).toBe(MatchType.EXACT_MATCH)
+      expect(await isNumberMatch("+1800 siX-Flags", "+1 800 7493 5247")).toBe("exact_match")
     })
 
     it("should match numbers with extensions", async () => {
       expect(await isNumberMatch("+64 3 331-6005 extn 1234", "+6433316005#1234")).toBe(
-        MatchType.EXACT_MATCH
+        "exact_match"
       )
       expect(await isNumberMatch("+64 3 331-6005 ext. 1234", "+6433316005;1234")).toBe(
-        MatchType.EXACT_MATCH
+        "exact_match"
       )
     })
 
     it("should match ParsedPhoneNumber with string", async () => {
       const nzNumber = await parse("+64 3 331 6005")
-      expect(await isNumberMatch(nzNumber, "+6403 331 6005")).toBe(MatchType.EXACT_MATCH)
+      expect(await isNumberMatch(nzNumber, "+6403 331 6005")).toBe("exact_match")
     })
   })
 
   // testIsNumberMatchNonMatches
   describe("isNumberMatchNonMatches", () => {
     it("should not match different numbers", async () => {
-      expect(await isNumberMatch("03 331 6005", "03 331 6006")).toBe(MatchType.NO_MATCH)
+      expect(await isNumberMatch("03 331 6005", "03 331 6006")).toBe("no_match")
     })
 
     it("should not match numbers with different country codes", async () => {
-      expect(await isNumberMatch("+800 1234 5678", "+1 800 1234 5678")).toBe(MatchType.NO_MATCH)
-      expect(await isNumberMatch("+64 3 331-6005", "+16433316005")).toBe(MatchType.NO_MATCH)
-      expect(await isNumberMatch("+64 3 331-6005", "+6133316005")).toBe(MatchType.NO_MATCH)
+      expect(await isNumberMatch("+800 1234 5678", "+1 800 1234 5678")).toBe("no_match")
+      expect(await isNumberMatch("+64 3 331-6005", "+16433316005")).toBe("no_match")
+      expect(await isNumberMatch("+64 3 331-6005", "+6133316005")).toBe("no_match")
     })
 
     it("should not match numbers with different extensions", async () => {
-      expect(await isNumberMatch("+64 3 331-6005 extn 1234", "0116433316005#1235")).toBe(
-        MatchType.NO_MATCH
-      )
+      expect(await isNumberMatch("+64 3 331-6005 extn 1234", "0116433316005#1235")).toBe("no_match")
       expect(await isNumberMatch("+64 3 331-6005 extn 1234", "tel:+64-3-331-6005;ext=1235")).toBe(
-        MatchType.NO_MATCH
+        "no_match"
       )
-      expect(await isNumberMatch("+64 3 331-6005 ext.1235", "3 331 6005#1234")).toBe(
-        MatchType.NO_MATCH
-      )
+      expect(await isNumberMatch("+64 3 331-6005 ext.1235", "3 331 6005#1234")).toBe("no_match")
     })
 
     it("should return NOT_A_NUMBER for invalid inputs", async () => {
-      expect(await isNumberMatch("4", "3 331 6043")).toBe(MatchType.NOT_A_NUMBER)
-      expect(await isNumberMatch("+43", "+64 3 331 6005")).toBe(MatchType.NOT_A_NUMBER)
-      expect(await isNumberMatch("+43", "64 3 331 6005")).toBe(MatchType.NOT_A_NUMBER)
-      expect(await isNumberMatch("Dog", "64 3 331 6005")).toBe(MatchType.NOT_A_NUMBER)
+      expect(await isNumberMatch("4", "3 331 6043")).toBe("not_a_number")
+      expect(await isNumberMatch("+43", "+64 3 331 6005")).toBe("not_a_number")
+      expect(await isNumberMatch("+43", "64 3 331 6005")).toBe("not_a_number")
+      expect(await isNumberMatch("Dog", "64 3 331 6005")).toBe("not_a_number")
     })
   })
 
   // testIsNumberMatchNsnMatches
   describe("isNumberMatchNsnMatches", () => {
     it("should NSN match when one number has country code and other doesn't", async () => {
-      expect(await isNumberMatch("+64 3 331-6005", "03 331 6005")).toBe(MatchType.NSN_MATCH)
+      expect(await isNumberMatch("+64 3 331-6005", "03 331 6005")).toBe("nsn_match")
     })
 
     it("should NSN match with tel: URI containing phone-context", async () => {
       expect(
         await isNumberMatch("+64 3 331-6005", "tel:03-331-6005;isub=1234;phone-context=abc.nz")
-      ).toBe(MatchType.NSN_MATCH)
+      ).toBe("nsn_match")
     })
 
     it("should NSN match ParsedPhoneNumber with national format string", async () => {
       const nzNumber = await parse("+64 3 331 6005")
-      expect(await isNumberMatch(nzNumber, "03 331 6005")).toBe(MatchType.NSN_MATCH)
+      expect(await isNumberMatch(nzNumber, "03 331 6005")).toBe("nsn_match")
     })
 
     it("should NSN match when country code might be included in national number", async () => {
       const nzNumber = await parse("+64 3 331 6005")
-      expect(await isNumberMatch(nzNumber, "(64-3) 331 6005")).toBe(MatchType.NSN_MATCH)
+      expect(await isNumberMatch(nzNumber, "(64-3) 331 6005")).toBe("nsn_match")
     })
 
     it("should NSN match US numbers with/without leading 1", async () => {
       const usNumber = await parse("+1 650 253 0000")
-      expect(await isNumberMatch(usNumber, "1-650-253-0000")).toBe(MatchType.NSN_MATCH)
-      expect(await isNumberMatch(usNumber, "6502530000")).toBe(MatchType.NSN_MATCH)
-      expect(await isNumberMatch("+1 650-253 0000", "1 650 253 0000")).toBe(MatchType.NSN_MATCH)
-      expect(await isNumberMatch("1 650-253 0000", "1 650 253 0000")).toBe(MatchType.NSN_MATCH)
-      expect(await isNumberMatch("1 650-253 0000", "+1 650 253 0000")).toBe(MatchType.NSN_MATCH)
+      expect(await isNumberMatch(usNumber, "1-650-253-0000")).toBe("nsn_match")
+      expect(await isNumberMatch(usNumber, "6502530000")).toBe("nsn_match")
+      expect(await isNumberMatch("+1 650-253 0000", "1 650 253 0000")).toBe("nsn_match")
+      expect(await isNumberMatch("1 650-253 0000", "1 650 253 0000")).toBe("nsn_match")
+      expect(await isNumberMatch("1 650-253 0000", "+1 650 253 0000")).toBe("nsn_match")
     })
   })
 
   // testIsNumberMatchShortNsnMatches
   describe("isNumberMatchShortNsnMatches", () => {
     it("should SHORT_NSN match when one is suffix of other", async () => {
-      expect(await isNumberMatch("+64 3 331-6005", "331 6005")).toBe(MatchType.SHORT_NSN_MATCH)
+      expect(await isNumberMatch("+64 3 331-6005", "331 6005")).toBe("short_nsn_match")
     })
 
     it("should SHORT_NSN match with tel: URI and phone-context", async () => {
       expect(await isNumberMatch("+64 3 331-6005", "tel:331-6005;phone-context=abc.nz")).toBe(
-        MatchType.SHORT_NSN_MATCH
+        "short_nsn_match"
       )
       expect(
         await isNumberMatch("+64 3 331-6005", "tel:331-6005;isub=1234;phone-context=abc.nz")
-      ).toBe(MatchType.SHORT_NSN_MATCH)
+      ).toBe("short_nsn_match")
     })
 
     it("should SHORT_NSN match when neither has country code", async () => {
-      expect(await isNumberMatch("3 331-6005", "03 331 6005")).toBe(MatchType.SHORT_NSN_MATCH)
-      expect(await isNumberMatch("3 331-6005", "331 6005")).toBe(MatchType.SHORT_NSN_MATCH)
+      expect(await isNumberMatch("3 331-6005", "03 331 6005")).toBe("short_nsn_match")
+      expect(await isNumberMatch("3 331-6005", "331 6005")).toBe("short_nsn_match")
     })
 
     it("should SHORT_NSN match partial numbers", async () => {
-      expect(await isNumberMatch("03 331-6005", "331 6005")).toBe(MatchType.SHORT_NSN_MATCH)
-      expect(await isNumberMatch("1 234 345 6789", "345 6789")).toBe(MatchType.SHORT_NSN_MATCH)
-      expect(await isNumberMatch("+1 (234) 345 6789", "345 6789")).toBe(MatchType.SHORT_NSN_MATCH)
+      expect(await isNumberMatch("03 331-6005", "331 6005")).toBe("short_nsn_match")
+      expect(await isNumberMatch("1 234 345 6789", "345 6789")).toBe("short_nsn_match")
+      expect(await isNumberMatch("+1 (234) 345 6789", "345 6789")).toBe("short_nsn_match")
     })
 
     it("should SHORT_NSN match when one has extension and other doesn't", async () => {
-      expect(await isNumberMatch("+64 3 331-6005", "3 331 6005#1234")).toBe(
-        MatchType.SHORT_NSN_MATCH
-      )
+      expect(await isNumberMatch("+64 3 331-6005", "3 331 6005#1234")).toBe("short_nsn_match")
     })
   })
 })

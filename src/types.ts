@@ -1,28 +1,18 @@
 /**
  * Phone number types supported by ts-phonenumber.
- * Only LANDLINE, MOBILE, and VOIP are considered valid.
- * All other types (toll-free, premium, etc.) are treated as INVALID.
+ * Only "landline", "mobile", and "voip" are considered valid.
+ * All other types (toll-free, premium, etc.) are treated as "invalid".
  */
-export enum PhoneNumberType {
-  LANDLINE = "LANDLINE",
-  MOBILE = "MOBILE",
-  VOIP = "VOIP",
-  INVALID = "INVALID"
-}
+export type PhoneNumberType = "landline" | "mobile" | "voip" | "invalid"
 
 /**
  * Supported output formats for phone number formatting.
+ * - `e164`: +491701234567
+ * - `international`: +49 170 1234567
+ * - `national`: 0170 1234567
+ * - `rfc3966`: tel:+49-170-1234567
  */
-export enum PhoneNumberFormat {
-  /** E.164 format: +491701234567 */
-  E164 = "E164",
-  /** International format: +49 170 1234567 */
-  INTERNATIONAL = "INTERNATIONAL",
-  /** National format: 0170 1234567 */
-  NATIONAL = "NATIONAL",
-  /** RFC3966 tel: URI format: tel:+49-170-1234567 */
-  RFC3966 = "RFC3966"
-}
+export type PhoneNumberFormat = "e164" | "international" | "national" | "rfc3966"
 
 /**
  * Represents a successfully parsed phone number.
@@ -73,16 +63,15 @@ export interface ValidationResult {
 /**
  * Result types for phone number matching.
  * Used by isNumberMatch() to indicate how closely two numbers match.
+ * - `not_a_number`: One or both numbers could not be parsed
+ * - `no_match`: The numbers are definitely different
+ * - `short_nsn_match`: One number is a suffix of the other
+ * - `nsn_match`: National numbers match, but country codes differ
+ * - `exact_match`: Numbers are identical
  */
-export enum MatchType {
-  /** One or both numbers could not be parsed as valid phone numbers */
-  NOT_A_NUMBER = "NOT_A_NUMBER",
-  /** The numbers are definitely different */
-  NO_MATCH = "NO_MATCH",
-  /** One number is a suffix of the other (e.g., "331 6005" matches "+64 3 331 6005") */
-  SHORT_NSN_MATCH = "SHORT_NSN_MATCH",
-  /** National numbers match, but country codes differ or are missing */
-  NSN_MATCH = "NSN_MATCH",
-  /** Numbers are identical (country code, national number, extension) */
-  EXACT_MATCH = "EXACT_MATCH"
-}
+export type MatchType =
+  | "not_a_number"
+  | "no_match"
+  | "short_nsn_match"
+  | "nsn_match"
+  | "exact_match"

@@ -22,15 +22,7 @@ import {
 } from "libphonenumber-js"
 
 // Import our library
-import {
-  parse,
-  parseSync,
-  format,
-  formatSync,
-  validate,
-  validateSync,
-  PhoneNumberFormat
-} from "../src/index.js"
+import { parse, parseSync, format, formatSync, validate, validateSync } from "../src/index.js"
 import { registerMetadata, clearMetadataCache } from "../src/metadata/loader.js"
 
 // Import metadata for our library
@@ -223,7 +215,7 @@ async function runBenchmarks() {
 
   formatBench
     .add("ts-phonenumber (sync)", () => {
-      formatSync(tsParsed, PhoneNumberFormat.E164)
+      formatSync(tsParsed, "e164")
     })
     .add("awesome-phonenumber", () => {
       awesomeParsed.number?.e164
@@ -253,7 +245,7 @@ async function runBenchmarks() {
 
   formatIntlBench
     .add("ts-phonenumber (sync)", () => {
-      formatSync(tsParsed, PhoneNumberFormat.INTERNATIONAL)
+      formatSync(tsParsed, "international")
     })
     .add("awesome-phonenumber", () => {
       awesomeParsed.number?.international
@@ -285,13 +277,13 @@ async function runBenchmarks() {
     .add("ts-phonenumber (async)", async () => {
       const parsed = await parse(TEST_NUMBERS.DE_MOBILE)
       if (parsed.isValid) {
-        await format(parsed, PhoneNumberFormat.E164)
+        await format(parsed, "e164")
       }
     })
     .add("ts-phonenumber (sync)", () => {
       const parsed = parseSync(TEST_NUMBERS.DE_MOBILE)
       if (parsed.isValid) {
-        formatSync(parsed, PhoneNumberFormat.E164)
+        formatSync(parsed, "e164")
       }
     })
     .add("awesome-phonenumber", () => {

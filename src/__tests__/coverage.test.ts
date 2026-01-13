@@ -27,7 +27,6 @@ import {
   registerMetadata,
   getRegionMetadataSync
 } from "../metadata/loader.js"
-import { PhoneNumberFormat, PhoneNumberType } from "../types.js"
 import type { ParsedPhoneNumber } from "../types.js"
 import { parse, parseSync } from "../parse.js"
 import { validateSync, isValidNumberSync } from "../validate.js"
@@ -82,7 +81,7 @@ describe("Coverage Tests", () => {
     })
 
     it("should return empty string for invalid number", async () => {
-      const result = await format("invalid", PhoneNumberFormat.E164)
+      const result = await format("invalid", "e164")
       expect(result).toBe("")
     })
 
@@ -91,11 +90,11 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "1701234567",
         regionCode: "DE",
-        type: PhoneNumberType.MOBILE,
+        type: "mobile",
         isValid: true,
         rawInput: "+491701234567"
       }
-      const result = await format(parsed, PhoneNumberFormat.E164)
+      const result = await format(parsed, "e164")
       expect(result).toBe("+491701234567")
     })
 
@@ -104,11 +103,11 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "123456789012345",
         regionCode: "DE",
-        type: PhoneNumberType.LANDLINE,
+        type: "landline",
         isValid: true,
         rawInput: "+49123456789012345"
       }
-      const result = await format(parsed, PhoneNumberFormat.INTERNATIONAL)
+      const result = await format(parsed, "international")
       expect(result).toContain("+49")
       expect(result).toContain(" ")
     })
@@ -118,12 +117,13 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "1701234567",
         regionCode: "DE",
-        type: PhoneNumberType.MOBILE,
+        type: "mobile",
         isValid: true,
         rawInput: "+491701234567"
       }
       // Pass an invalid format to trigger default case
-      const result = await format(parsed, "UNKNOWN" as PhoneNumberFormat)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+      const result = await format(parsed, "UNKNOWN" as any)
       expect(result).toBe("+491701234567")
     })
   })
@@ -131,19 +131,19 @@ describe("Coverage Tests", () => {
   describe("getType.ts - edge cases", () => {
     it("should return INVALID for empty input", async () => {
       const result = await getType("")
-      expect(result).toBe(PhoneNumberType.INVALID)
+      expect(result).toBe("invalid")
     })
 
     it("should return INVALID for null-like input", async () => {
       // @ts-expect-error Testing invalid input
       const result = await getType(null)
-      expect(result).toBe(PhoneNumberType.INVALID)
+      expect(result).toBe("invalid")
     })
 
     it("should return INVALID for non-string input", async () => {
       // @ts-expect-error Testing invalid input
       const result = await getType(12345)
-      expect(result).toBe(PhoneNumberType.INVALID)
+      expect(result).toBe("invalid")
     })
 
     it("isMobile should return false for landline", async () => {
@@ -168,7 +168,7 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "1701234567",
         regionCode: "DE",
-        type: PhoneNumberType.MOBILE,
+        type: "mobile",
         isValid: true,
         rawInput: "+491701234567"
       }
@@ -181,7 +181,7 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "1701234567",
         regionCode: "",
-        type: PhoneNumberType.MOBILE,
+        type: "mobile",
         isValid: true,
         rawInput: "+491701234567"
       }
@@ -194,7 +194,7 @@ describe("Coverage Tests", () => {
         countryCode: 0,
         nationalNumber: "1234567",
         regionCode: "",
-        type: PhoneNumberType.INVALID,
+        type: "invalid",
         isValid: false,
         rawInput: "1234567"
       }
@@ -312,7 +312,7 @@ describe("Coverage Tests", () => {
 
   describe("format.ts - RFC3966 format", () => {
     it("should format to RFC3966", async () => {
-      const result = await format("+49 170 1234567", PhoneNumberFormat.RFC3966)
+      const result = await format("+49 170 1234567", "rfc3966")
       expect(result).toMatch(/^tel:\+49-/)
     })
   })
@@ -323,11 +323,11 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "1234",
         regionCode: "DE",
-        type: PhoneNumberType.LANDLINE,
+        type: "landline",
         isValid: true,
         rawInput: "+491234"
       }
-      const result = await format(parsed, PhoneNumberFormat.INTERNATIONAL)
+      const result = await format(parsed, "international")
       expect(result).toContain("+49")
     })
 
@@ -336,11 +336,11 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "123456",
         regionCode: "DE",
-        type: PhoneNumberType.LANDLINE,
+        type: "landline",
         isValid: true,
         rawInput: "+49123456"
       }
-      const result = await format(parsed, PhoneNumberFormat.INTERNATIONAL)
+      const result = await format(parsed, "international")
       expect(result).toContain("+49")
     })
   })
@@ -371,7 +371,7 @@ describe("Coverage Tests", () => {
         countryCode: 0,
         nationalNumber: "1234567",
         regionCode: "",
-        type: PhoneNumberType.INVALID,
+        type: "invalid",
         isValid: false,
         rawInput: "1234567"
       }
@@ -385,7 +385,7 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "1701234567",
         regionCode: "DE",
-        type: PhoneNumberType.MOBILE,
+        type: "mobile",
         isValid: true,
         rawInput: "+491701234567"
       }
@@ -454,7 +454,7 @@ describe("Coverage Tests", () => {
       const { validate } = await import("../validate.js")
       const result = await validate("+1 800 555 1234")
       // Result will either be invalid or have unsupported type error
-      expect(!result.isValid || result.type === PhoneNumberType.INVALID).toBe(true)
+      expect(!result.isValid || result.type === "invalid").toBe(true)
     })
   })
 
@@ -559,7 +559,7 @@ describe("Coverage Tests", () => {
       expect(result.isValid).toBe(true)
       expect(result.countryCode).toBe(49)
       expect(result.nationalNumber).toBe("1701234567")
-      expect(result.type).toBe(PhoneNumberType.MOBILE)
+      expect(result.type).toBe("mobile")
     })
 
     it("should parse national format with region hint", () => {
@@ -572,7 +572,7 @@ describe("Coverage Tests", () => {
     it("should return invalid for empty input", () => {
       const result = parseSync("")
       expect(result.isValid).toBe(false)
-      expect(result.type).toBe(PhoneNumberType.INVALID)
+      expect(result.type).toBe("invalid")
     })
 
     it("should return invalid for national format without region", () => {
@@ -611,7 +611,7 @@ describe("Coverage Tests", () => {
     it("should parse landline number", () => {
       const result = parseSync("+493012345678")
       expect(result.isValid).toBe(true)
-      expect(result.type).toBe(PhoneNumberType.LANDLINE)
+      expect(result.type).toBe("landline")
     })
 
     it("should handle national number without national prefix", () => {
@@ -623,7 +623,7 @@ describe("Coverage Tests", () => {
     it("should return invalid for number not matching patterns", () => {
       const result = parseSync("999", { defaultRegion: "DE" })
       expect(result.isValid).toBe(false)
-      expect(result.type).toBe(PhoneNumberType.INVALID)
+      expect(result.type).toBe("invalid")
     })
   })
 
@@ -631,19 +631,19 @@ describe("Coverage Tests", () => {
     it("should validate valid mobile number", () => {
       const result = validateSync("+491701234567")
       expect(result.isValid).toBe(true)
-      expect(result.type).toBe(PhoneNumberType.MOBILE)
+      expect(result.type).toBe("mobile")
     })
 
     it("should validate valid landline number", () => {
       const result = validateSync("+493012345678")
       expect(result.isValid).toBe(true)
-      expect(result.type).toBe(PhoneNumberType.LANDLINE)
+      expect(result.type).toBe("landline")
     })
 
     it("should return invalid for bad input", () => {
       const result = validateSync("not a number")
       expect(result.isValid).toBe(false)
-      expect(result.type).toBe(PhoneNumberType.INVALID)
+      expect(result.type).toBe("invalid")
     })
 
     it("should return error for empty input", () => {
@@ -688,27 +688,27 @@ describe("Coverage Tests", () => {
 
   describe("formatSync - sync formatting", () => {
     it("should format to E164 synchronously", () => {
-      const result = formatSync("+49 170 1234567", PhoneNumberFormat.E164)
+      const result = formatSync("+49 170 1234567", "e164")
       expect(result).toBe("+491701234567")
     })
 
     it("should format to INTERNATIONAL synchronously", () => {
-      const result = formatSync("+491701234567", PhoneNumberFormat.INTERNATIONAL)
+      const result = formatSync("+491701234567", "international")
       expect(result).toContain("+49")
     })
 
     it("should format to NATIONAL synchronously", () => {
-      const result = formatSync("+491701234567", PhoneNumberFormat.NATIONAL)
+      const result = formatSync("+491701234567", "national")
       expect(result).toContain("0")
     })
 
     it("should format to RFC3966 synchronously", () => {
-      const result = formatSync("+491701234567", PhoneNumberFormat.RFC3966)
+      const result = formatSync("+491701234567", "rfc3966")
       expect(result).toMatch(/^tel:\+49/)
     })
 
     it("should return empty string for invalid", () => {
-      const result = formatSync("invalid", PhoneNumberFormat.E164)
+      const result = formatSync("invalid", "e164")
       expect(result).toBe("")
     })
 
@@ -717,11 +717,11 @@ describe("Coverage Tests", () => {
         countryCode: 49,
         nationalNumber: "1701234567",
         regionCode: "DE",
-        type: PhoneNumberType.MOBILE,
+        type: "mobile",
         isValid: true,
         rawInput: "+491701234567"
       }
-      const result = formatSync(parsed, PhoneNumberFormat.E164)
+      const result = formatSync(parsed, "e164")
       expect(result).toBe("+491701234567")
     })
   })
@@ -729,22 +729,22 @@ describe("Coverage Tests", () => {
   describe("parseSync - type detection via sync parsing", () => {
     it("should detect MOBILE type synchronously", () => {
       const result = parseSync("+491701234567")
-      expect(result.type).toBe(PhoneNumberType.MOBILE)
+      expect(result.type).toBe("mobile")
     })
 
     it("should detect LANDLINE type synchronously", () => {
       const result = parseSync("+493012345678")
-      expect(result.type).toBe(PhoneNumberType.LANDLINE)
+      expect(result.type).toBe("landline")
     })
 
     it("should return INVALID for invalid input", () => {
       const result = parseSync("invalid")
-      expect(result.type).toBe(PhoneNumberType.INVALID)
+      expect(result.type).toBe("invalid")
     })
 
     it("should return INVALID for empty input", () => {
       const result = parseSync("")
-      expect(result.type).toBe(PhoneNumberType.INVALID)
+      expect(result.type).toBe("invalid")
     })
   })
 

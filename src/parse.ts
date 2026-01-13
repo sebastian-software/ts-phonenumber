@@ -2,8 +2,7 @@
  * Phone number parsing functionality.
  */
 
-import type { ParsedPhoneNumber, ParseOptions } from "./types.js"
-import { PhoneNumberType } from "./types.js"
+import type { ParsedPhoneNumber, ParseOptions, PhoneNumberType } from "./types.js"
 import {
   loadRegionMetadata,
   getRegionsForCountryCode,
@@ -37,7 +36,7 @@ export async function parse(input: string, options: ParseOptions = {}): Promise<
     countryCode: 0,
     nationalNumber: "",
     regionCode: "",
-    type: PhoneNumberType.INVALID,
+    type: "invalid",
     isValid: false,
     rawInput
   })
@@ -88,7 +87,7 @@ export function parseSync(input: string, options: ParseOptions = {}): ParsedPhon
     countryCode: 0,
     nationalNumber: "",
     regionCode: "",
-    type: PhoneNumberType.INVALID,
+    type: "invalid",
     isValid: false,
     rawInput
   })
@@ -232,7 +231,7 @@ async function parseE164(normalized: string, rawInput: string): Promise<ParsedPh
     countryCode: 0,
     nationalNumber: "",
     regionCode: "",
-    type: PhoneNumberType.INVALID,
+    type: "invalid",
     isValid: false,
     rawInput
   }
@@ -258,7 +257,7 @@ async function parseE164(normalized: string, rawInput: string): Promise<ParsedPh
         const metadata = await loadRegionMetadata(regionCode)
         if (metadata) {
           const type = determineType(nationalNumber, metadata)
-          if (type !== PhoneNumberType.INVALID) {
+          if (type !== "invalid") {
             return {
               countryCode: potentialCode,
               nationalNumber,
@@ -279,7 +278,7 @@ async function parseE164(normalized: string, rawInput: string): Promise<ParsedPh
         const metadata = await loadRegionMetadata(regionCode)
         if (metadata?.countryCode === potentialCode) {
           const type = determineType(nationalNumber, metadata)
-          if (type !== PhoneNumberType.INVALID) {
+          if (type !== "invalid") {
             return {
               countryCode: potentialCode,
               nationalNumber,
@@ -311,7 +310,7 @@ async function parseNational(
     countryCode: 0,
     nationalNumber: "",
     regionCode: "",
-    type: PhoneNumberType.INVALID,
+    type: "invalid",
     isValid: false,
     rawInput
   }
@@ -331,7 +330,7 @@ async function parseNational(
   // Determine the type
   const type = determineType(nationalNumber, metadata)
 
-  if (type === PhoneNumberType.INVALID) {
+  if (type === "invalid") {
     return invalidResult
   }
 
@@ -354,7 +353,7 @@ function parseE164Sync(normalized: string, rawInput: string): ParsedPhoneNumber 
     countryCode: 0,
     nationalNumber: "",
     regionCode: "",
-    type: PhoneNumberType.INVALID,
+    type: "invalid",
     isValid: false,
     rawInput
   }
@@ -380,7 +379,7 @@ function parseE164Sync(normalized: string, rawInput: string): ParsedPhoneNumber 
         const metadata = getCachedRegionMetadata(regionCode)
         if (metadata) {
           const type = determineType(nationalNumber, metadata)
-          if (type !== PhoneNumberType.INVALID) {
+          if (type !== "invalid") {
             return {
               countryCode: potentialCode,
               nationalNumber,
@@ -419,12 +418,12 @@ function parseNationalSync(
   // Determine the type
   const type = determineType(nationalNumber, metadata)
 
-  if (type === PhoneNumberType.INVALID) {
+  if (type === "invalid") {
     return {
       countryCode: 0,
       nationalNumber: "",
       regionCode: "",
-      type: PhoneNumberType.INVALID,
+      type: "invalid",
       isValid: false,
       rawInput
     }
@@ -447,21 +446,21 @@ function parseNationalSync(
 function determineType(nationalNumber: string, metadata: RegionMetadata): PhoneNumberType {
   // Check mobile pattern (RegExp is pre-compiled in metadata)
   if (metadata.mobile?.pattern?.test(nationalNumber)) {
-    return PhoneNumberType.MOBILE
+    return "mobile"
   }
 
   // Check fixed line pattern
   if (metadata.fixedLine?.pattern?.test(nationalNumber)) {
-    return PhoneNumberType.LANDLINE
+    return "landline"
   }
 
   // Check VoIP pattern
   /* v8 ignore next 3 - VoIP patterns vary by region, not all have VoIP definitions */
   if (metadata.voip?.pattern?.test(nationalNumber)) {
-    return PhoneNumberType.VOIP
+    return "voip"
   }
 
-  return PhoneNumberType.INVALID
+  return "invalid"
 }
 
 /**

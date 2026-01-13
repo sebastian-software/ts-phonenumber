@@ -3,7 +3,6 @@
  */
 
 import type { ParseOptions, ValidationResult, ParsedPhoneNumber } from "./types.js"
-import { PhoneNumberType } from "./types.js"
 import { parse, parseSync } from "./parse.js"
 import { loadRegionMetadata, getRegionsForCountryCode } from "./metadata/index.js"
 import { getMinLength, getMaxLength } from "./lengthBitmap.js"
@@ -30,7 +29,7 @@ export async function validate(
   if (!input || typeof input !== "string") {
     return {
       isValid: false,
-      type: PhoneNumberType.INVALID,
+      type: "invalid",
       error: "Input must be a non-empty string"
     }
   }
@@ -38,21 +37,21 @@ export async function validate(
   try {
     const parsed = await parse(input, options)
 
-    if (!parsed.isValid || parsed.type === PhoneNumberType.INVALID) {
+    if (!parsed.isValid || parsed.type === "invalid") {
       return {
         isValid: false,
-        type: PhoneNumberType.INVALID,
+        type: "invalid",
         error: "Number does not match any valid pattern for the region"
       }
     }
 
     // Only LANDLINE, MOBILE, and VOIP are valid types
-    const validTypes = [PhoneNumberType.LANDLINE, PhoneNumberType.MOBILE, PhoneNumberType.VOIP]
+    const validTypes = ["landline", "mobile", "voip"]
 
     if (!validTypes.includes(parsed.type)) {
       return {
         isValid: false,
-        type: PhoneNumberType.INVALID,
+        type: "invalid",
         error: "Number type is not supported (only LANDLINE, MOBILE, VOIP are valid)"
       }
     }
@@ -64,7 +63,7 @@ export async function validate(
   } catch (error) {
     return {
       isValid: false,
-      type: PhoneNumberType.INVALID,
+      type: "invalid",
       error: error instanceof Error ? error.message : "Unknown validation error"
     }
   }
@@ -107,7 +106,7 @@ export function validateSync(input: string, options: ParseOptions = {}): Validat
   if (!input || typeof input !== "string") {
     return {
       isValid: false,
-      type: PhoneNumberType.INVALID,
+      type: "invalid",
       error: "Input must be a non-empty string"
     }
   }
@@ -115,21 +114,21 @@ export function validateSync(input: string, options: ParseOptions = {}): Validat
   try {
     const parsed = parseSync(input, options)
 
-    if (!parsed.isValid || parsed.type === PhoneNumberType.INVALID) {
+    if (!parsed.isValid || parsed.type === "invalid") {
       return {
         isValid: false,
-        type: PhoneNumberType.INVALID,
+        type: "invalid",
         error: "Number does not match any valid pattern for the region"
       }
     }
 
     // Only LANDLINE, MOBILE, and VOIP are valid types
-    const validTypes = [PhoneNumberType.LANDLINE, PhoneNumberType.MOBILE, PhoneNumberType.VOIP]
+    const validTypes = ["landline", "mobile", "voip"]
 
     if (!validTypes.includes(parsed.type)) {
       return {
         isValid: false,
-        type: PhoneNumberType.INVALID,
+        type: "invalid",
         error: "Number type is not supported (only LANDLINE, MOBILE, VOIP are valid)"
       }
     }
@@ -141,7 +140,7 @@ export function validateSync(input: string, options: ParseOptions = {}): Validat
   } catch (error) {
     return {
       isValid: false,
-      type: PhoneNumberType.INVALID,
+      type: "invalid",
       error: error instanceof Error ? error.message : "Unknown validation error"
     }
   }

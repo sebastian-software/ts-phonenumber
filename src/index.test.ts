@@ -7,8 +7,6 @@ import {
   isValidNumber,
   isMobile,
   isLandline,
-  PhoneNumberType,
-  PhoneNumberFormat,
   clearMetadataCache,
   registerMetadata
 } from "./index.js"
@@ -30,7 +28,7 @@ describe("ts-phonenumber", () => {
       expect(result.countryCode).toBe(49)
       expect(result.nationalNumber).toBe("1701234567")
       expect(result.regionCode).toBe("DE")
-      expect(result.type).toBe(PhoneNumberType.MOBILE)
+      expect(result.type).toBe("mobile")
     })
 
     it("should parse national format with region hint", async () => {
@@ -38,19 +36,19 @@ describe("ts-phonenumber", () => {
       expect(result.isValid).toBe(true)
       expect(result.countryCode).toBe(49)
       expect(result.nationalNumber).toBe("1701234567")
-      expect(result.type).toBe(PhoneNumberType.MOBILE)
+      expect(result.type).toBe("mobile")
     })
 
     it("should return invalid for empty input", async () => {
       const result = await parse("")
       expect(result.isValid).toBe(false)
-      expect(result.type).toBe(PhoneNumberType.INVALID)
+      expect(result.type).toBe("invalid")
     })
 
     it("should return invalid for national format without region", async () => {
       const result = await parse("01701234567")
       expect(result.isValid).toBe(false)
-      expect(result.type).toBe(PhoneNumberType.INVALID)
+      expect(result.type).toBe("invalid")
     })
 
     it("should handle tel: URI format", async () => {
@@ -70,13 +68,13 @@ describe("ts-phonenumber", () => {
     it("should validate a valid mobile number", async () => {
       const result = await validate("+491701234567")
       expect(result.isValid).toBe(true)
-      expect(result.type).toBe(PhoneNumberType.MOBILE)
+      expect(result.type).toBe("mobile")
     })
 
     it("should return invalid for bad input", async () => {
       const result = await validate("not a number")
       expect(result.isValid).toBe(false)
-      expect(result.type).toBe(PhoneNumberType.INVALID)
+      expect(result.type).toBe("invalid")
     })
   })
 
@@ -94,27 +92,27 @@ describe("ts-phonenumber", () => {
 
   describe("format", () => {
     it("should format to E.164", async () => {
-      const result = await format("+49 170 1234567", PhoneNumberFormat.E164)
+      const result = await format("+49 170 1234567", "e164")
       expect(result).toBe("+491701234567")
     })
 
     it("should format to international", async () => {
-      const result = await format("+491701234567", PhoneNumberFormat.INTERNATIONAL)
+      const result = await format("+491701234567", "international")
       expect(result).toContain("+49")
     })
 
     it("should format to national", async () => {
-      const result = await format("+491701234567", PhoneNumberFormat.NATIONAL)
+      const result = await format("+491701234567", "national")
       expect(result).toContain("0")
     })
 
     it("should format to RFC3966", async () => {
-      const result = await format("+491701234567", PhoneNumberFormat.RFC3966)
+      const result = await format("+491701234567", "rfc3966")
       expect(result).toContain("tel:+49")
     })
 
     it("should return empty string for invalid numbers", async () => {
-      const result = await format("invalid", PhoneNumberFormat.E164)
+      const result = await format("invalid", "e164")
       expect(result).toBe("")
     })
   })
@@ -122,17 +120,17 @@ describe("ts-phonenumber", () => {
   describe("getType", () => {
     it("should return MOBILE for mobile numbers", async () => {
       const result = await getType("+491701234567")
-      expect(result).toBe(PhoneNumberType.MOBILE)
+      expect(result).toBe("mobile")
     })
 
     it("should return LANDLINE for fixed line numbers", async () => {
       const result = await getType("+493012345678")
-      expect(result).toBe(PhoneNumberType.LANDLINE)
+      expect(result).toBe("landline")
     })
 
     it("should return INVALID for invalid input", async () => {
       const result = await getType("invalid")
-      expect(result).toBe(PhoneNumberType.INVALID)
+      expect(result).toBe("invalid")
     })
   })
 
@@ -160,21 +158,32 @@ describe("ts-phonenumber", () => {
     })
   })
 
-  describe("PhoneNumberType enum", () => {
-    it("should have correct values", () => {
-      expect(PhoneNumberType.MOBILE).toBe("MOBILE")
-      expect(PhoneNumberType.LANDLINE).toBe("LANDLINE")
-      expect(PhoneNumberType.VOIP).toBe("VOIP")
-      expect(PhoneNumberType.INVALID).toBe("INVALID")
+  describe("PhoneNumberType string literals", () => {
+    it("should use lowercase string values", async () => {
+      const mobileResult = await getType("+491701234567")
+      expect(mobileResult).toBe("mobile")
+
+      const landlineResult = await getType("+493012345678")
+      expect(landlineResult).toBe("landline")
+
+      const invalidResult = await getType("invalid")
+      expect(invalidResult).toBe("invalid")
     })
   })
 
-  describe("PhoneNumberFormat enum", () => {
-    it("should have correct values", () => {
-      expect(PhoneNumberFormat.E164).toBe("E164")
-      expect(PhoneNumberFormat.INTERNATIONAL).toBe("INTERNATIONAL")
-      expect(PhoneNumberFormat.NATIONAL).toBe("NATIONAL")
-      expect(PhoneNumberFormat.RFC3966).toBe("RFC3966")
+  describe("PhoneNumberFormat string literals", () => {
+    it("should accept lowercase string format values", async () => {
+      const e164Result = await format("+491701234567", "e164")
+      expect(e164Result).toBe("+491701234567")
+
+      const intlResult = await format("+491701234567", "international")
+      expect(intlResult).toContain("+49")
+
+      const nationalResult = await format("+491701234567", "national")
+      expect(nationalResult).toContain("0")
+
+      const rfcResult = await format("+491701234567", "rfc3966")
+      expect(rfcResult).toContain("tel:+49")
     })
   })
 })

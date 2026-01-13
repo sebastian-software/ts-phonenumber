@@ -2,8 +2,7 @@
  * Phone number type detection functionality.
  */
 
-import type { ParseOptions } from "./types.js"
-import { PhoneNumberType } from "./types.js"
+import type { ParseOptions, PhoneNumberType } from "./types.js"
 import { parse } from "./parse.js"
 
 /**
@@ -17,27 +16,27 @@ import { parse } from "./parse.js"
  */
 export async function getType(input: string, options: ParseOptions = {}): Promise<PhoneNumberType> {
   if (!input || typeof input !== "string") {
-    return PhoneNumberType.INVALID
+    return "invalid"
   }
 
   try {
     const parsed = await parse(input, options)
 
     if (!parsed.isValid) {
-      return PhoneNumberType.INVALID
+      return "invalid"
     }
 
     // Only return supported types
-    const supportedTypes = [PhoneNumberType.LANDLINE, PhoneNumberType.MOBILE, PhoneNumberType.VOIP]
+    const supportedTypes = ["landline", "mobile", "voip"]
 
     if (supportedTypes.includes(parsed.type)) {
       return parsed.type
     }
 
-    return PhoneNumberType.INVALID
+    return "invalid"
   } catch {
     /* v8 ignore next - defensive error handling */
-    return PhoneNumberType.INVALID
+    return "invalid"
   }
 }
 
@@ -50,7 +49,7 @@ export async function getType(input: string, options: ParseOptions = {}): Promis
  */
 export async function isMobile(input: string, options: ParseOptions = {}): Promise<boolean> {
   const type = await getType(input, options)
-  return type === PhoneNumberType.MOBILE
+  return type === "mobile"
 }
 
 /**
@@ -62,7 +61,7 @@ export async function isMobile(input: string, options: ParseOptions = {}): Promi
  */
 export async function isLandline(input: string, options: ParseOptions = {}): Promise<boolean> {
   const type = await getType(input, options)
-  return type === PhoneNumberType.LANDLINE
+  return type === "landline"
 }
 
 /**
@@ -74,5 +73,5 @@ export async function isLandline(input: string, options: ParseOptions = {}): Pro
  */
 export async function isVoIP(input: string, options: ParseOptions = {}): Promise<boolean> {
   const type = await getType(input, options)
-  return type === PhoneNumberType.VOIP
+  return type === "voip"
 }

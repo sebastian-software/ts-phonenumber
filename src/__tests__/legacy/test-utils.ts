@@ -11,8 +11,7 @@ import {
   clearMetadataCache,
   registerMetadata
 } from "../../index.js"
-import type { ParsedPhoneNumber } from "../../types.js"
-import { PhoneNumberType, PhoneNumberFormat } from "../../types.js"
+import type { ParsedPhoneNumber, PhoneNumberType, PhoneNumberFormat } from "../../types.js"
 
 /**
  * A phone number fixture for testing.
@@ -202,5 +201,6 @@ export const ParseError = {
 } as const
 
 // Re-export commonly used items
-export { parse, validate, format, getType, PhoneNumberType, PhoneNumberFormat }
+export { parse, validate, format, getType }
+export type { PhoneNumberType, PhoneNumberFormat }
 export { clearMetadataCache, registerMetadata }

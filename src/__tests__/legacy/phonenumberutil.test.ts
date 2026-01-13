@@ -17,8 +17,6 @@ import {
   getNumberType,
   createPhoneNumber,
   fixtureToE164,
-  PhoneNumberType,
-  PhoneNumberFormat,
   clearMetadataCache,
   registerMetadata
 } from "./test-utils.js"
@@ -81,15 +79,13 @@ describe("Legacy PhoneNumberUtil tests", () => {
   describe("Format", () => {
     it("should format US number", async () => {
       // National format
-      expect(await formatNumber(US_NUMBER, PhoneNumberFormat.NATIONAL)).toMatch(/650.*253.*0000/)
+      expect(await formatNumber(US_NUMBER, "national")).toMatch(/650.*253.*0000/)
 
       // International format
-      expect(await formatNumber(US_NUMBER, PhoneNumberFormat.INTERNATIONAL)).toMatch(
-        /\+1.*650.*253.*0000/
-      )
+      expect(await formatNumber(US_NUMBER, "international")).toMatch(/\+1.*650.*253.*0000/)
 
       // E164 format
-      expect(await formatNumber(US_NUMBER, PhoneNumberFormat.E164)).toBe("+16502530000")
+      expect(await formatNumber(US_NUMBER, "e164")).toBe("+16502530000")
 
       // Note: Toll-free and premium numbers are treated as INVALID per our requirements
       // (§3: only LANDLINE, MOBILE, VOIP are valid types)
@@ -98,18 +94,16 @@ describe("Legacy PhoneNumberUtil tests", () => {
 
     it("should format GB number", async () => {
       // Fixed line
-      const nationalFormat = await formatNumber(GB_NUMBER, PhoneNumberFormat.NATIONAL)
+      const nationalFormat = await formatNumber(GB_NUMBER, "national")
       expect(nationalFormat).toContain("20")
       expect(nationalFormat).toContain("7031")
       expect(nationalFormat).toContain("3000")
 
       // International format
-      expect(await formatNumber(GB_NUMBER, PhoneNumberFormat.INTERNATIONAL)).toMatch(
-        /\+44.*20.*7031.*3000/
-      )
+      expect(await formatNumber(GB_NUMBER, "international")).toMatch(/\+44.*20.*7031.*3000/)
 
       // Mobile
-      expect(await formatNumber(GB_MOBILE, PhoneNumberFormat.E164)).toBe("+447912345678")
+      expect(await formatNumber(GB_MOBILE, "e164")).toBe("+447912345678")
     })
 
     it("should format DE number", async () => {
@@ -117,25 +111,25 @@ describe("Legacy PhoneNumberUtil tests", () => {
       deNumber.setCountryCode(49)
       deNumber.setNationalNumber(301234)
 
-      const national = await formatNumber(deNumber, PhoneNumberFormat.NATIONAL)
+      const national = await formatNumber(deNumber, "national")
       expect(national).toContain("30")
       expect(national).toContain("1234")
 
-      expect(await formatNumber(deNumber, PhoneNumberFormat.E164)).toBe("+49301234")
+      expect(await formatNumber(deNumber, "e164")).toBe("+49301234")
     })
 
     it("should format IT number with leading zero", async () => {
       // Italian numbers have a leading zero that is part of the national number
-      expect(await formatNumber(IT_NUMBER, PhoneNumberFormat.E164)).toBe("+390236618300")
-      expect(await formatNumber(IT_MOBILE, PhoneNumberFormat.E164)).toBe("+39345678901")
+      expect(await formatNumber(IT_NUMBER, "e164")).toBe("+390236618300")
+      expect(await formatNumber(IT_MOBILE, "e164")).toBe("+39345678901")
     })
 
     it("should format AU number", async () => {
-      expect(await formatNumber(AU_NUMBER, PhoneNumberFormat.E164)).toBe("+61236618300")
+      expect(await formatNumber(AU_NUMBER, "e164")).toBe("+61236618300")
     })
 
     it("should format RFC3966", async () => {
-      const rfc = await formatNumber(US_NUMBER, PhoneNumberFormat.RFC3966)
+      const rfc = await formatNumber(US_NUMBER, "rfc3966")
       expect(rfc).toContain("tel:+1")
       expect(rfc).toMatch(/\+1.*650.*253.*0000/)
     })
@@ -246,59 +240,59 @@ describe("Legacy PhoneNumberUtil tests", () => {
       const premium = await validate(fixtureToE164(US_PREMIUM))
 
       // These should be parseable but may be typed as INVALID per our requirements
-      expect(tollFree.type === PhoneNumberType.INVALID || tollFree.isValid).toBe(true)
-      expect(premium.type === PhoneNumberType.INVALID || premium.isValid).toBe(true)
+      expect(tollFree.type === "invalid" || tollFree.isValid).toBe(true)
+      expect(premium.type === "invalid" || premium.isValid).toBe(true)
     })
   })
 
   describe("GetNumberType", () => {
     it("should detect mobile numbers", async () => {
-      expect(await getNumberType(GB_MOBILE)).toBe(PhoneNumberType.MOBILE)
+      expect(await getNumberType(GB_MOBILE)).toBe("mobile")
     })
 
     it("should detect fixed-line numbers", async () => {
-      expect(await getNumberType(GB_NUMBER)).toBe(PhoneNumberType.LANDLINE)
-      expect(await getNumberType(DE_NUMBER)).toBe(PhoneNumberType.LANDLINE)
+      expect(await getNumberType(GB_NUMBER)).toBe("landline")
+      expect(await getNumberType(DE_NUMBER)).toBe("landline")
     })
 
     it("should handle toll-free as invalid per requirements", async () => {
       // Per §3 of requirements, only LANDLINE, MOBILE, VOIP are valid
       // All other types (toll-free, premium, etc.) should be INVALID
       const type = await getNumberType(US_TOLLFREE)
-      expect(type === PhoneNumberType.INVALID || type === PhoneNumberType.LANDLINE).toBe(true)
+      expect(type === "invalid" || type === "landline").toBe(true)
     })
   })
 
   describe("E.164 Format", () => {
     it("should format to E.164 correctly", async () => {
-      expect(await formatNumber(US_NUMBER, PhoneNumberFormat.E164)).toBe("+16502530000")
-      expect(await formatNumber(GB_NUMBER, PhoneNumberFormat.E164)).toBe("+442070313000")
-      expect(await formatNumber(DE_NUMBER, PhoneNumberFormat.E164)).toBe("+4930123456")
-      expect(await formatNumber(AU_NUMBER, PhoneNumberFormat.E164)).toBe("+61236618300")
+      expect(await formatNumber(US_NUMBER, "e164")).toBe("+16502530000")
+      expect(await formatNumber(GB_NUMBER, "e164")).toBe("+442070313000")
+      expect(await formatNumber(DE_NUMBER, "e164")).toBe("+4930123456")
+      expect(await formatNumber(AU_NUMBER, "e164")).toBe("+61236618300")
     })
 
     it("should handle Italian leading zero in E.164", async () => {
       // Italian numbers include the leading zero in E.164
-      expect(await formatNumber(IT_NUMBER, PhoneNumberFormat.E164)).toBe("+390236618300")
+      expect(await formatNumber(IT_NUMBER, "e164")).toBe("+390236618300")
     })
   })
 
   describe("International Format", () => {
     it("should format with country code prefix", async () => {
-      const intl = await formatNumber(US_NUMBER, PhoneNumberFormat.INTERNATIONAL)
+      const intl = await formatNumber(US_NUMBER, "international")
       expect(intl).toContain("+1")
 
-      const intlGB = await formatNumber(GB_NUMBER, PhoneNumberFormat.INTERNATIONAL)
+      const intlGB = await formatNumber(GB_NUMBER, "international")
       expect(intlGB).toContain("+44")
 
-      const intlDE = await formatNumber(DE_NUMBER, PhoneNumberFormat.INTERNATIONAL)
+      const intlDE = await formatNumber(DE_NUMBER, "international")
       expect(intlDE).toContain("+49")
     })
   })
 
   describe("National Format", () => {
     it("should format with national prefix where applicable", async () => {
-      const national = await formatNumber(GB_NUMBER, PhoneNumberFormat.NATIONAL)
+      const national = await formatNumber(GB_NUMBER, "national")
       // UK national format should include trunk prefix 0
       expect(national).toContain("0")
     })
@@ -309,14 +303,14 @@ describe("Legacy PhoneNumberUtil tests", () => {
       const result = await parse("+49 170 1234567")
       expect(result.countryCode).toBe(49)
       expect(result.isValid).toBe(true)
-      expect(result.type).toBe(PhoneNumberType.MOBILE)
+      expect(result.type).toBe("mobile")
     })
 
     it("should parse German fixed-line numbers", async () => {
       const result = await parse("+49 30 12345678")
       expect(result.countryCode).toBe(49)
       expect(result.isValid).toBe(true)
-      expect(result.type).toBe(PhoneNumberType.LANDLINE)
+      expect(result.type).toBe("landline")
     })
 
     it("should parse Austrian numbers", async () => {

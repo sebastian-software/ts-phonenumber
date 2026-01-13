@@ -2,8 +2,7 @@
  * Phone number formatting functionality.
  */
 
-import type { ParsedPhoneNumber, ParseOptions } from "./types.js"
-import { PhoneNumberFormat, PhoneNumberType } from "./types.js"
+import type { ParsedPhoneNumber, ParseOptions, PhoneNumberFormat } from "./types.js"
 import { parse, parseSync } from "./parse.js"
 import { loadRegionMetadata, getCachedRegionMetadata } from "./metadata/index.js"
 import type { RegionMetadata, NumberFormat } from "./metadata/index.js"
@@ -18,30 +17,30 @@ import type { RegionMetadata, NumberFormat } from "./metadata/index.js"
  */
 export async function format(
   input: string | ParsedPhoneNumber,
-  targetFormat: PhoneNumberFormat = PhoneNumberFormat.E164,
+  targetFormat: PhoneNumberFormat = "e164",
   options: ParseOptions = {}
 ): Promise<string> {
   // Parse if input is a string
   const phoneNumber = typeof input === "string" ? await parse(input, options) : input
 
   // Cannot format invalid numbers
-  if (!phoneNumber.isValid || phoneNumber.type === PhoneNumberType.INVALID) {
+  if (!phoneNumber.isValid || phoneNumber.type === "invalid") {
     return ""
   }
 
   const metadata = await loadRegionMetadata(phoneNumber.regionCode)
 
   switch (targetFormat) {
-    case PhoneNumberFormat.E164:
+    case "e164":
       return formatE164(phoneNumber)
 
-    case PhoneNumberFormat.INTERNATIONAL:
+    case "international":
       return formatInternational(phoneNumber, metadata)
 
-    case PhoneNumberFormat.NATIONAL:
+    case "national":
       return formatNational(phoneNumber, metadata)
 
-    case PhoneNumberFormat.RFC3966:
+    case "rfc3966":
       return formatRFC3966(phoneNumber)
 
     default:
@@ -64,28 +63,28 @@ export async function format(
  * registerMetadata(DE)
  *
  * // Then use sync formatting
- * const result = formatSync("+49 170 1234567", PhoneNumberFormat.INTERNATIONAL)
+ * const result = formatSync("+49 170 1234567", "international")
  * ```
  */
 export function formatSync(
   input: string | ParsedPhoneNumber,
-  targetFormat: PhoneNumberFormat = PhoneNumberFormat.E164,
+  targetFormat: PhoneNumberFormat = "e164",
   options: ParseOptions = {}
 ): string {
   // Parse if input is a string
   const phoneNumber = typeof input === "string" ? parseSync(input, options) : input
 
   // Cannot format invalid numbers
-  if (!phoneNumber.isValid || phoneNumber.type === PhoneNumberType.INVALID) {
+  if (!phoneNumber.isValid || phoneNumber.type === "invalid") {
     return ""
   }
 
   // Fast path for formats that don't need metadata
-  if (targetFormat === PhoneNumberFormat.E164) {
+  if (targetFormat === "e164") {
     return formatE164(phoneNumber)
   }
 
-  if (targetFormat === PhoneNumberFormat.RFC3966) {
+  if (targetFormat === "rfc3966") {
     return formatRFC3966(phoneNumber)
   }
 
@@ -93,10 +92,10 @@ export function formatSync(
   const metadata = getCachedRegionMetadata(phoneNumber.regionCode)
 
   switch (targetFormat) {
-    case PhoneNumberFormat.INTERNATIONAL:
+    case "international":
       return formatInternational(phoneNumber, metadata)
 
-    case PhoneNumberFormat.NATIONAL:
+    case "national":
       return formatNational(phoneNumber, metadata)
 
     default:
@@ -257,7 +256,7 @@ export async function formatE164Only(
   input: string | ParsedPhoneNumber,
   options: ParseOptions = {}
 ): Promise<string> {
-  return format(input, PhoneNumberFormat.E164, options)
+  return format(input, "e164", options)
 }
 
 /**
@@ -272,7 +271,7 @@ export async function formatInternationalOnly(
   input: string | ParsedPhoneNumber,
   options: ParseOptions = {}
 ): Promise<string> {
-  return format(input, PhoneNumberFormat.INTERNATIONAL, options)
+  return format(input, "international", options)
 }
 
 /**
@@ -287,5 +286,5 @@ export async function formatNationalOnly(
   input: string | ParsedPhoneNumber,
   options: ParseOptions = {}
 ): Promise<string> {
-  return format(input, PhoneNumberFormat.NATIONAL, options)
+  return format(input, "national", options)
 }

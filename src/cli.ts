@@ -9,7 +9,7 @@ import { parse } from "./parse.js"
 import { validate } from "./validate.js"
 import { format } from "./format.js"
 import { getType } from "./getType.js"
-import { PhoneNumberFormat, PhoneNumberType } from "./types.js"
+import type { PhoneNumberFormat } from "./types.js"
 import { loadRegionMetadata } from "./metadata/index.js"
 
 const program = new Command()
@@ -82,7 +82,7 @@ program
           console.log(`Valid: ${String(result.isValid)}`)
         } else {
           console.log("Could not parse phone number")
-          console.log(`Type: ${PhoneNumberType.INVALID}`)
+          console.log(`Type: invalid`)
           process.exitCode = 1
         }
       }
@@ -108,16 +108,16 @@ program
         await loadRegionMetadata(options.region)
       }
 
-      // Map format string to enum
+      // Map format string to type
       const formatMap: Record<string, PhoneNumberFormat> = {
-        e164: PhoneNumberFormat.E164,
-        international: PhoneNumberFormat.INTERNATIONAL,
-        national: PhoneNumberFormat.NATIONAL,
-        rfc3966: PhoneNumberFormat.RFC3966
+        e164: "e164",
+        international: "international",
+        national: "national",
+        rfc3966: "rfc3966"
       }
 
-      const targetFormat =
-        formatMap[options.format?.toLowerCase() ?? "e164"] ?? PhoneNumberFormat.E164
+      const targetFormat: PhoneNumberFormat =
+        formatMap[options.format?.toLowerCase() ?? "e164"] ?? "e164"
 
       const result = await format(number, targetFormat, { defaultRegion: options.region })
 
@@ -151,7 +151,7 @@ program
       const result = await getType(number, { defaultRegion: options.region })
       console.log(result)
 
-      if (result === PhoneNumberType.INVALID) {
+      if (result === "invalid") {
         process.exitCode = 1
       }
     } catch (error) {

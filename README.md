@@ -37,13 +37,7 @@ yarn add ts-phonenumber
 For servers, CLIs, and performance-critical code. Pre-load metadata once, then use sync functions:
 
 ```typescript
-import {
-  parseSync,
-  validateSync,
-  formatSync,
-  registerMetadata,
-  PhoneNumberFormat
-} from "ts-phonenumber"
+import { parseSync, validateSync, formatSync, registerMetadata } from "ts-phonenumber"
 
 // Pre-load metadata (do this once at startup)
 import DE from "ts-phonenumber/metadata/countries/DE"
@@ -52,12 +46,12 @@ registerMetadata(DE)
 // Now use sync functions - no async overhead!
 const parsed = parseSync("+491701234567")
 console.log(parsed.regionCode) // "DE"
-console.log(parsed.type) // "MOBILE"
+console.log(parsed.type) // "mobile"
 
 const isValid = validateSync("+491701234567")
 console.log(isValid.isValid) // true
 
-const formatted = formatSync(parsed, PhoneNumberFormat.INTERNATIONAL)
+const formatted = formatSync(parsed, "international")
 console.log(formatted) // "+49 170 123 4567"
 ```
 
@@ -66,7 +60,7 @@ console.log(formatted) // "+49 170 123 4567"
 For web apps where you want to load metadata on-demand:
 
 ```typescript
-import { parse, validate, format, getType, PhoneNumberFormat } from "ts-phonenumber"
+import { parse, validate, format, getType } from "ts-phonenumber"
 
 // Metadata is loaded automatically when needed
 const parsed = await parse("+491701234567")
@@ -75,7 +69,7 @@ console.log(parsed)
 //   countryCode: 49,
 //   nationalNumber: "1701234567",
 //   regionCode: "DE",
-//   type: "MOBILE",
+//   type: "mobile",
 //   isValid: true,
 //   rawInput: "+491701234567"
 // }
@@ -83,21 +77,21 @@ console.log(parsed)
 // Validate a phone number
 const result = await validate("+491701234567")
 console.log(result.isValid) // true
-console.log(result.type) // "MOBILE"
+console.log(result.type) // "mobile"
 
 // Format a phone number
-const e164 = await format("+491701234567", PhoneNumberFormat.E164)
+const e164 = await format("+491701234567", "e164")
 console.log(e164) // "+491701234567"
 
-const intl = await format("+491701234567", PhoneNumberFormat.INTERNATIONAL)
+const intl = await format("+491701234567", "international")
 console.log(intl) // "+49 170 123 4567"
 
-const national = await format("+491701234567", PhoneNumberFormat.NATIONAL)
+const national = await format("+491701234567", "national")
 console.log(national) // "0170 123 4567"
 
 // Get number type
 const type = await getType("+491701234567")
-console.log(type) // "MOBILE"
+console.log(type) // "mobile"
 ```
 
 ### Parsing National Numbers
@@ -166,11 +160,11 @@ ts-phonenumber type "+491701234567"
 
 This library only supports the following number types:
 
-- **LANDLINE** - Fixed-line/geographic numbers
-- **MOBILE** - Mobile phone numbers
-- **VOIP** - Voice over IP numbers
+- **`"landline"`** - Fixed-line/geographic numbers
+- **`"mobile"`** - Mobile phone numbers
+- **`"voip"`** - Voice over IP numbers
 
-All other types (toll-free, premium rate, shared cost, etc.) are treated as **INVALID**.
+All other types (toll-free, premium rate, shared cost, etc.) are treated as **`"invalid"`**.
 
 ## Scope & Testing Transparency
 
@@ -216,7 +210,7 @@ We validate our implementation against Google's original test suite:
 | AsYouTypeFormatter                     | Complexity vs. value trade-off      |
 | Legacy runtimes (Node < 20)            | Modern tooling requirement          |
 
-Numbers of unsupported types will parse successfully but return `type: "INVALID"` and `isValid: false`.
+Numbers of unsupported types will parse successfully but return `type: "invalid"` and `isValid: false`.
 
 ### Metadata Updates
 
@@ -249,8 +243,8 @@ import DACH from "ts-phonenumber/metadata/bundles/DACH" // DE, AT, CH
 
 ### Types
 
-- `PhoneNumberType` - Enum: `LANDLINE`, `MOBILE`, `VOIP`, `INVALID`
-- `PhoneNumberFormat` - Enum: `E164`, `INTERNATIONAL`, `NATIONAL`, `RFC3966`
+- `PhoneNumberType` - `"landline" | "mobile" | "voip" | "invalid"`
+- `PhoneNumberFormat` - `"e164" | "international" | "national" | "rfc3966"`
 - `ParsedPhoneNumber` - Result of parsing a phone number
 - `ValidationResult` - Result of validating a phone number
 - `ParseOptions` - Options for parsing (includes `defaultRegion`)

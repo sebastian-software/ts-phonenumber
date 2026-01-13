@@ -271,12 +271,19 @@
         display: flex;
         gap: 0.5rem;
         justify-content: center;
+        align-items: center;
         flex-wrap: wrap;
         margin-top: 2.5rem;
       }
 
-      .badges a,
+      .badges a {
+        display: flex;
+        align-items: center;
+        transition: transform 0.2s;
+      }
+
       .badges img {
+        height: 20px;
         transition: transform 0.2s;
       }
 
@@ -1238,23 +1245,23 @@
               <span>TypeScript</span>
             </div>
             <div class="code-content active" id="async">
-              <pre><code><span class="keyword">import</span> { parse, validate, format, PhoneNumberFormat } <span class="keyword">from</span> <span class="string">"ts-phonenumber"</span>
+              <pre><code><span class="keyword">import</span> { parse, validate, format } <span class="keyword">from</span> <span class="string">"ts-phonenumber"</span>
 
 <span class="comment">// Parse a phone number (metadata loaded automatically)</span>
 <span class="keyword">const</span> parsed = <span class="keyword">await</span> <span class="function">parse</span>(<span class="string">"+491701234567"</span>)
 console.<span class="function">log</span>(parsed.regionCode)  <span class="comment">// "DE"</span>
-console.<span class="function">log</span>(parsed.type)        <span class="comment">// "MOBILE"</span>
+console.<span class="function">log</span>(parsed.type)        <span class="comment">// "mobile"</span>
 
 <span class="comment">// Validate a phone number</span>
 <span class="keyword">const</span> result = <span class="keyword">await</span> <span class="function">validate</span>(<span class="string">"+491701234567"</span>)
 console.<span class="function">log</span>(result.isValid)     <span class="comment">// true</span>
 
 <span class="comment">// Format a phone number</span>
-<span class="keyword">const</span> intl = <span class="keyword">await</span> <span class="function">format</span>(<span class="string">"+491701234567"</span>, PhoneNumberFormat.INTERNATIONAL)
+<span class="keyword">const</span> intl = <span class="keyword">await</span> <span class="function">format</span>(<span class="string">"+491701234567"</span>, <span class="string">"international"</span>)
 console.<span class="function">log</span>(intl)  <span class="comment">// "+49 170 1234567"</span></code></pre>
             </div>
             <div class="code-content" id="sync">
-              <pre><code><span class="keyword">import</span> { parseSync, validateSync, formatSync, registerMetadata, PhoneNumberFormat } <span class="keyword">from</span> <span class="string">"ts-phonenumber"</span>
+              <pre><code><span class="keyword">import</span> { parseSync, validateSync, formatSync, registerMetadata } <span class="keyword">from</span> <span class="string">"ts-phonenumber"</span>
 <span class="keyword">import</span> DE <span class="keyword">from</span> <span class="string">"ts-phonenumber/metadata/countries/DE"</span>
 
 <span class="comment">// Pre-load metadata once at startup</span>
@@ -1263,12 +1270,12 @@ console.<span class="function">log</span>(intl)  <span class="comment">// "+49 1
 <span class="comment">// Now use sync functions - no async overhead!</span>
 <span class="keyword">const</span> parsed = <span class="function">parseSync</span>(<span class="string">"+491701234567"</span>)
 console.<span class="function">log</span>(parsed.regionCode)  <span class="comment">// "DE"</span>
-console.<span class="function">log</span>(parsed.type)        <span class="comment">// "MOBILE"</span>
+console.<span class="function">log</span>(parsed.type)        <span class="comment">// "mobile"</span>
 
 <span class="keyword">const</span> isValid = <span class="function">validateSync</span>(<span class="string">"+491701234567"</span>)
 console.<span class="function">log</span>(isValid.isValid)    <span class="comment">// true</span>
 
-<span class="keyword">const</span> formatted = <span class="function">formatSync</span>(parsed, PhoneNumberFormat.INTERNATIONAL)
+<span class="keyword">const</span> formatted = <span class="function">formatSync</span>(parsed, <span class="string">"international"</span>)
 console.<span class="function">log</span>(formatted)  <span class="comment">// "+49 170 1234567"</span></code></pre>
             </div>
             <div class="code-content" id="cli">
@@ -1277,7 +1284,7 @@ npm install -g ts-phonenumber
 
 <span class="comment"># Validate a phone number</span>
 ts-phonenumber validate <span class="string">"+491701234567"</span>
-<span class="comment"># Output: Valid MOBILE number (DE)</span>
+<span class="comment"># Output: Valid: mobile</span>
 
 <span class="comment"># Parse and show details</span>
 ts-phonenumber parse <span class="string">"+491701234567"</span> --json
@@ -1288,7 +1295,7 @@ ts-phonenumber format <span class="string">"+491701234567"</span> --format inter
 
 <span class="comment"># Get number type</span>
 ts-phonenumber type <span class="string">"+491701234567"</span>
-<span class="comment"># Output: MOBILE</span></code></pre>
+<span class="comment"># Output: mobile</span></code></pre>
             </div>
           </div>
         </div>

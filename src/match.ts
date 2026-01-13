@@ -3,8 +3,7 @@
  * Compares two phone numbers to determine if they represent the same number.
  */
 
-import type { ParsedPhoneNumber } from "./types.js"
-import { MatchType } from "./types.js"
+import type { ParsedPhoneNumber, MatchType } from "./types.js"
 import { parse } from "./parse.js"
 import { alphaToDigit, FORMATTING_CHARS_PATTERN, PLUS_VARIANTS_PATTERN } from "./constants.js"
 
@@ -53,12 +52,12 @@ export async function isNumberMatch(
 
   // If either couldn't be parsed at all, it's not a number
   if (!first || !second) {
-    return MatchType.NOT_A_NUMBER
+    return "not_a_number"
   }
 
   // Early exit if both have extensions and they differ
   if (first.extension && second.extension && first.extension !== second.extension) {
-    return MatchType.NO_MATCH
+    return "no_match"
   }
 
   const firstHasCountryCode = first.countryCode !== 0
@@ -68,7 +67,7 @@ export async function isNumberMatch(
   if (firstHasCountryCode && secondHasCountryCode) {
     // Different country codes = no match
     if (first.countryCode !== second.countryCode) {
-      return MatchType.NO_MATCH
+      return "no_match"
     }
 
     // Same country code - compare NSNs with leading zero normalization
@@ -78,18 +77,18 @@ export async function isNumberMatch(
     if (nsn1 === nsn2) {
       // Extensions must also match for EXACT_MATCH
       if (first.extension === second.extension) {
-        return MatchType.EXACT_MATCH
+        return "exact_match"
       }
       // One has extension, one doesn't
-      return MatchType.SHORT_NSN_MATCH
+      return "short_nsn_match"
     }
 
     // Check for short NSN match (one NSN is suffix of other)
     if (isNsnSuffixOfOther(nsn1, nsn2)) {
-      return MatchType.SHORT_NSN_MATCH
+      return "short_nsn_match"
     }
 
-    return MatchType.NO_MATCH
+    return "no_match"
   }
 
   // One or both don't have country codes
@@ -111,9 +110,9 @@ export async function isNumberMatch(
       // Check if after stripping embedded CC, the NSNs match
       if (normalizeNsn(potentialNsn) === normalizeNsn(withCC.nationalNumber)) {
         if (first.extension === second.extension) {
-          return MatchType.NSN_MATCH
+          return "nsn_match"
         }
-        return MatchType.SHORT_NSN_MATCH
+        return "short_nsn_match"
       }
     }
 
@@ -123,26 +122,26 @@ export async function isNumberMatch(
 
     if (normNsn1 === normNsn2) {
       if (first.extension === second.extension) {
-        return MatchType.NSN_MATCH
+        return "nsn_match"
       }
-      return MatchType.SHORT_NSN_MATCH
+      return "short_nsn_match"
     }
 
     // Check for short NSN match
     if (isNsnSuffixOfOther(normNsn1, normNsn2)) {
-      return MatchType.SHORT_NSN_MATCH
+      return "short_nsn_match"
     }
 
-    return MatchType.NO_MATCH
+    return "no_match"
   }
 
   // Case: Neither has country code
   // Exact digit match = NSN_MATCH
   if (nsn1 === nsn2) {
     if (first.extension === second.extension) {
-      return MatchType.NSN_MATCH
+      return "nsn_match"
     }
-    return MatchType.SHORT_NSN_MATCH
+    return "short_nsn_match"
   }
 
   // If they match only after stripping leading zeros, it's SHORT_NSN_MATCH
@@ -151,15 +150,15 @@ export async function isNumberMatch(
   const normNsn2 = normalizeNsn(nsn2)
 
   if (normNsn1 === normNsn2) {
-    return MatchType.SHORT_NSN_MATCH
+    return "short_nsn_match"
   }
 
   // Check for short NSN match (one is suffix of the other)
   if (isNsnSuffixOfOther(normNsn1, normNsn2)) {
-    return MatchType.SHORT_NSN_MATCH
+    return "short_nsn_match"
   }
 
-  return MatchType.NO_MATCH
+  return "no_match"
 }
 
 /**

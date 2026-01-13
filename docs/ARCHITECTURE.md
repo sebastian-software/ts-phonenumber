@@ -46,8 +46,8 @@ src/
 
 Defines the core types:
 
-- `PhoneNumberType` - Enum for number types (LANDLINE, MOBILE, VOIP, INVALID)
-- `PhoneNumberFormat` - Enum for output formats (E164, INTERNATIONAL, NATIONAL, RFC3966)
+- `PhoneNumberType` - Union type for number types (`"landline"`, `"mobile"`, `"voip"`, `"invalid"`)
+- `PhoneNumberFormat` - Union type for output formats (`"e164"`, `"international"`, `"national"`, `"rfc3966"`)
 - `ParsedPhoneNumber` - Result of parsing a phone number
 - `ValidationResult` - Result of validation
 

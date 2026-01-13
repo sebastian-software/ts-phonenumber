@@ -8,14 +8,14 @@
  */
 
 // Types
-export {
+export type {
   PhoneNumberType,
   PhoneNumberFormat,
   MatchType,
-  type ParsedPhoneNumber,
-  type ParseOptions,
-  type FormatOptions,
-  type ValidationResult
+  ParsedPhoneNumber,
+  ParseOptions,
+  FormatOptions,
+  ValidationResult
 } from "./types.js"
 
 // Core functions (async)
