@@ -6,9 +6,10 @@ This document describes the architecture of ts-phonenumber.
 
 ts-phonenumber is a TypeScript-first phone number library with the following design principles:
 
-1. **Async-first API** - All public functions are async to support on-demand metadata loading
-2. **Code-splitting friendly** - Metadata is loaded via dynamic `import()` for tree-shaking
+1. **Dual API** - Async for code splitting, sync for maximum performance
+2. **Code-splitting friendly** - Metadata loaded via dynamic `import()`
 3. **Focused scope** - Only supports LANDLINE, MOBILE, and VOIP number types
+4. **Hand-optimized data structures** - Pre-compiled RegExp, bitmap lengths
 
 ## Module Structure
 
@@ -20,17 +21,22 @@ src/
 ├── validate.ts           # Phone number validation
 ├── format.ts             # Phone number formatting
 ├── getType.ts            # Type detection
+├── region.ts             # Region utilities
+├── match.ts              # Number matching
+├── lengthBitmap.ts       # Bitmap utilities for length validation
 ├── cli.ts                # CLI entry point
 └── metadata/
     ├── index.ts          # Metadata exports
     ├── types.ts          # Metadata type definitions
     ├── loader.ts         # Dynamic metadata loader
+    ├── countryCodeMap.ts # Country code to region mapping
     ├── countries/        # Per-country metadata modules
     │   ├── DE.ts
     │   ├── AT.ts
     │   └── ...
-    └── groups/           # Regional bundles
+    └── bundles/          # Regional bundles
         ├── DACH.ts
+        ├── EU.ts
         └── ...
 ```
 
@@ -47,27 +53,79 @@ Defines the core types:
 
 ### Metadata System (`metadata/`)
 
-The metadata system is designed for efficient loading:
-
-1. **On-demand loading** - Metadata is loaded only when needed
-2. **Caching** - Loaded metadata is cached in memory
-3. **Code splitting** - Each country module is a separate chunk
+The metadata system is designed for efficient loading and execution:
 
 #### Metadata Types (`metadata/types.ts`)
 
-- `RegionMetadata` - Complete metadata for a country/region
-- `NumberPattern` - Pattern for matching number types
-- `NumberFormat` - Formatting rules
-- `MetadataBundle` - Collection of multiple regions
+```typescript
+interface PhoneNumberDesc {
+  pattern?: RegExp // Pre-compiled, anchored: ^pattern$
+  possibleLengths?: number // Bitmap: bit N set = length N valid
+  possibleLengthsLocalOnly?: number
+}
+
+interface NumberFormat {
+  pattern: RegExp // Pre-compiled with capture groups
+  format: string // Replacement: "$1 $2"
+  leadingDigits?: RegExp // Pre-compiled, combined with |
+}
+
+interface RegionMetadata {
+  regionCode: string
+  countryCode: number
+  leadingDigits?: RegExp // Pre-compiled prefix pattern
+  // ... other fields
+}
+```
 
 #### Loader (`metadata/loader.ts`)
 
-The loader provides:
+The loader provides both async and sync access:
+
+**Async (on-demand loading):**
 
 - `loadRegionMetadata(regionCode)` - Load single region
 - `loadMetadataBundle(bundleName)` - Load group bundle
 - `preloadRegions(regionCodes)` - Batch preloading
-- `clearMetadataCache()` - Cache management
+
+**Sync (pre-loaded metadata):**
+
+- `registerMetadata(metadata)` - Register for sync access
+- `getRegionMetadataSync(regionCode)` - Get cached metadata
+- `isMetadataLoaded(regionCode)` - Check if loaded
+
+### Performance Optimizations
+
+#### Pre-compiled RegExp (ADR 0006)
+
+All regular expression patterns are compiled at build time:
+
+```typescript
+// Generated metadata (no runtime compilation)
+pattern: /^1(?:5\d{9}|7\d{8})$/
+leadingDigits: /^(?:1[67]|9)/
+```
+
+#### Bitmap Length Validation (ADR 0007)
+
+Possible lengths stored as bitmaps for O(1) operations:
+
+```typescript
+// Generated metadata
+possibleLengths: 896, // bits: 7,8,9
+
+// Runtime check: O(1)
+const isValid = (bitmap & (1 << length)) !== 0
+```
+
+#### Combined Leading Digit Patterns
+
+Multiple patterns merged into single RegExp:
+
+```typescript
+// Instead of: [/^1/, /^2/, /^3/] with array.some()
+leadingDigits: /^(?:1|2|3)/ // Single test() call
+```
 
 ### Parsing (`parse.ts`)
 
@@ -104,39 +162,76 @@ dist/
 ├── index.cjs             # CJS entry
 ├── index.d.ts            # Type declarations
 ├── cli.js                # CLI (ESM with shebang)
+├── lengthBitmap.js       # Bitmap utilities
 └── metadata/
     ├── countries/        # Individual country modules
     │   ├── DE.js
     │   ├── DE.cjs
     │   └── ...
-    └── groups/           # Group bundles
-        ├── DACH.js
-        ├── DACH.cjs
+    └── bundles/          # Inline bundles
+        ├── DACH.js       # Embedded DE, AT, CH metadata
+        ├── EU.js
         └── ...
 ```
 
 ## Runtime Behavior
 
-### Metadata Loading Flow
+### Async Flow (Code Splitting)
 
 1. User calls `parse("+491701234567")`
 2. Parser extracts country code (49)
 3. Loader checks cache for region metadata
 4. If not cached, dynamic `import()` loads the module
 5. Metadata is cached for future use
-6. Parser uses metadata patterns for type detection
+6. Parser uses pre-compiled patterns for type detection
+
+### Sync Flow (Maximum Performance)
+
+1. At startup: `registerMetadata(DE)`
+2. User calls `parseSync("+491701234567")`
+3. Parser gets metadata from cache (no async)
+4. Pre-compiled RegExp patterns execute directly
+5. Bitmap operations for length validation
 
 ### Browser Bundle Optimization
 
 For browser builds:
 
-1. Core library is small (no metadata embedded)
+1. Core library is small (~5KB, no metadata)
 2. Bundlers create separate chunks for each metadata module
 3. Only used metadata is downloaded
 4. Metadata modules are cached by the browser
+
+## Metadata Generation
+
+Metadata is generated from Google's libphonenumber XML:
+
+```bash
+pnpm upstream:update  # Fetch latest, convert, test
+```
+
+The converter (`scripts/convert-metadata.ts`):
+
+1. Parses `PhoneNumberMetadata.xml`
+2. Generates TypeScript modules with pre-compiled patterns
+3. Creates inline bundles for common market groupings
+4. Adds helpful comments (e.g., `// bits: 7,8,9`)
+
+## Architecture Decisions
+
+See `docs/adr/` for detailed decision records:
+
+- **ADR 0001** - Async Public API
+- **ADR 0002** - Restricted Number Types
+- **ADR 0003** - Metadata as ESM Modules
+- **ADR 0004** - Dual API (Async + Sync)
+- **ADR 0005** - WASM Not Pursued
+- **ADR 0006** - Pre-compiled RegExp
+- **ADR 0007** - Bitmap Length Validation
 
 ## Testing Strategy
 
 - Unit tests for each core function
 - Integration tests for parse → validate → format flow
-- Metadata accuracy tests against known numbers
+- Legacy test compatibility with libphonenumber
+- Benchmark comparisons with alternative libraries
