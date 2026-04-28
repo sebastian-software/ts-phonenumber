@@ -1,5 +1,6 @@
 # ts-phonenumber
 
+[![Powered by Sebastian Software](https://img.shields.io/badge/Powered%20by-Sebastian%20Software-00718d?style=flat-square)](https://oss.sebastian-software.com)
 [![CI](https://github.com/sebastian-software/ts-phonenumber/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-software/ts-phonenumber/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/sebastian-software/ts-phonenumber/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastian-software/ts-phonenumber)
 [![npm version](https://img.shields.io/npm/v/ts-phonenumber.svg)](https://www.npmjs.com/package/ts-phonenumber)
@@ -339,3 +340,18 @@ Based on concepts from [Google's libphonenumber](https://github.com/google/libph
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+---
+
+<!-- sebastian-software-branding:start -->
+<p align="center">
+  <a href="https://oss.sebastian-software.com">
+    <img src="https://sebastian-brand.vercel.app/sebastian-software/logo-software.svg" alt="Sebastian Software" width="240" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://oss.sebastian-software.com">Open Source at Sebastian Software</a><br />
+  Copyright &copy; 2026 Sebastian Software GmbH
+</p>
+<!-- sebastian-software-branding:end -->
