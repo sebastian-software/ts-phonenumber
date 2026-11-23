@@ -7,7 +7,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/ts-phonenumber.svg)](https://www.npmjs.com/package/ts-phonenumber)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/ts-phonenumber)](https://bundlephobia.com/package/ts-phonenumber)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
-[![node](https://img.shields.io/node/v/ts-phonenumber.svg)](https://nodejs.org/)
+[![Node.js test matrix 22, 24, and 26](https://img.shields.io/badge/Node.js-22%20%7C%2024%20%7C%2026-339933?logo=nodedotjs&logoColor=white)](https://github.com/sebastian-software/ts-phonenumber/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 **The fastest phone number library for JavaScript/TypeScript.** Parse, validate, and format phone numbers with blazing speed and tiny bundles.
